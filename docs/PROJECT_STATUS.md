@@ -16,8 +16,9 @@ P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关�
 - Run 35：目标位置调整后构建通过，但 playability runner 暴露了初始化时机问题。
 - Run 36：修正 runner 初始化与 32 关硬门禁；32 个官方默认布局实际逐关运行并通过。
 - Run 37：补齐项目图标与 P3 首轮内容收尾；脚本、数据、runtime smoke、32 关可玩性和 APK 导出全部通过。
-- Run 38：再次验证当前代码，32 关可玩性、脚本/数据、runtime smoke、Android ARM64 导出和签名全部通过；临时 Litterbox 上传返回 500，但该步骤允许失败，GitHub Release 正常发布。
-- Run 39：仅修正 playability runner 的最终日志计数显示，确保成功日志准确显示 `32 levels`。
+- Run 38：再次验证当前代码，32 关可玩性、脚本/数据、runtime smoke、Android ARM64 导出和签名全部通过；临时 Litterbox 上传返回 500，但 GitHub Release 正常发布。
+- Run 39：发现 playability runner 日志修复引入 GDScript 参数/类型解析错误 → 修复。
+- Run 40：修复后的 runner 通过；明确日志输出 `PASS (32 levels)`，并再次完成全部自动化门禁、APK 导出和签名验证。
 
 ## 当前自动化门禁
 
@@ -56,10 +57,10 @@ P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关�
 
 ## 当前构建
 
-- Release：`tiny-machine-p3-38`
+- Release：`tiny-machine-p3-40`
 - APK：`TinyMachineP3.apk`
-- SHA-256：`caa81c9d375536393ca593011075f149087f0194d2feb1bec704f8494b69b0c0`
-- 公共下载：GitHub Release `tiny-machine-p3-38`
+- SHA-256：`b23c41f649bfc89a3e9bc91c64ab360d2a016ff9fd98064b24150814ac4ea0d0`
+- 公共下载：GitHub Release `tiny-machine-p3-40`
 
 ## 下一步
 
