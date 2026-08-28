@@ -52,19 +52,10 @@ jobs:
             https://litterbox.catbox.moe/resources/internals/api.php)
           test -n "$URL"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
-          printf '%s\n' "$URL" > temporary-apk-url.txt
           echo "Temporary download URL: $URL"
 
-      - name: Save temporary URL in repository
-        if: steps.litterbox.outputs.url != ''
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add temporary-apk-url.txt
-          git commit -m "ci: publish temporary P1 APK URL [skip ci]"
-          git push origin HEAD:main
-
       - name: Publish public GitHub release fallback
+        if: ${{ !cancelled() }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: tiny-machine-p1-${{ github.run_number }}
@@ -74,5 +65,5 @@ jobs:
           body: |
             Tiny Machine P1 Android ARM64 debug build.
             Target entry is terminal: the simulation stops immediately on success.
-            Temporary Litterbox link is written to temporary-apk-url.txt when available.
+            A temporary Litterbox URL may also appear in the workflow log.
           files: build/android/TinyMachineP1.apk
