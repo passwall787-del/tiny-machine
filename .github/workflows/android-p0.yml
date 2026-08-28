@@ -44,19 +44,6 @@ jobs:
               ls -lh build/android/TinyMachineP3.apk
             '
 
-      - name: Upload to temporary Litterbox
-        id: litterbox
-        continue-on-error: true
-        run: |
-          URL=$(curl -f -sS --retry 3 --retry-delay 2 \
-            -F "reqtype=fileupload" \
-            -F "time=1h" \
-            -F "fileToUpload=@build/android/TinyMachineP3.apk;type=application/vnd.android.package-archive" \
-            https://litterbox.catbox.moe/resources/internals/api.php)
-          test -n "$URL"
-          echo "url=$URL" >> "$GITHUB_OUTPUT"
-          echo "Temporary download URL: $URL"
-
       - name: Publish public GitHub release
         if: ${{ success() }}
         uses: softprops/action-gh-release@v2
@@ -69,4 +56,5 @@ jobs:
             Tiny Machine P3 Android ARM64 debug build.
             Includes P2 editor/data pipeline and 32 official levels.
             Automated catalog, serialization, validator, runtime smoke and default-level playability tests run before export.
+            GitHub Release is the canonical public APK download.
           files: build/android/TinyMachineP3.apk
