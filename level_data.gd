@@ -55,8 +55,7 @@ func generate_pattern() -> void:
 func generate_inventory() -> void:
     inventory = {"board":3,"slope":slope_count}
     match pattern:
-        "basic": pass
-        "step": pass
+        "basic", "step": pass
         "spring": inventory["spring"] = 1
         "switch":
             inventory["switch"] = 1
@@ -80,22 +79,33 @@ func generate_inventory() -> void:
 func generate_solution() -> void:
     solution_pieces.clear()
     var count := clampi(slope_count, 2, 5)
-    for i in range(count):
-        var x := 200.0 + 150.0 * float(i)
-        var y := 220.0 + 55.0 * float(i)
-        solution_pieces.append({"type":"slope","x":x,"y":y,"r":0.22})
+    var sx := start_position.x
+    var sy := start_position.y
+    var gx := goal_position.x
 
-    var last_x := 200.0 + 150.0 * float(count - 1)
-    var last_y := 220.0 + 55.0 * float(count - 1)
-    var board2_x := 730.0 if count == 2 else 850.0
+    # Deterministic staircase: first slope sits under START and every slope
+    # descends toward the right so the ball naturally transfers between parts.
+    var first_y := clampf(sy + 105.0, 230.0, 285.0)
+    var step_x := 190.0
+    var step_y := 62.0
+    for i in range(count):
+        var x := sx + step_x * float(i)
+        var y := first_y + step_y * float(i)
+        solution_pieces.append({"type":"slope","x":x,"y":y,"r":-0.22})
+
+    var last_x := sx + step_x * float(count - 1)
+    var last_y := first_y + step_y * float(count - 1)
+    var first_board_x := minf(last_x + 125.0, gx - 260.0)
     var board_positions := [
-        Vector2(last_x + 150.0, clampf(last_y + 90.0, 340.0, 470.0)),
-        Vector2(board2_x, clampf(last_y + 140.0, 400.0, 500.0)),
-        Vector2(1030.0, 500.0)
+        Vector2(first_board_x, clampf(last_y + 120.0, 380.0, 470.0)),
+        Vector2(minf(first_board_x + 210.0, gx - 90.0), 485.0),
+        Vector2(gx - 30.0, 500.0)
     ]
-    var boards_to_use := 3 if count <= 4 else 2
+
+    var boards_to_use := 3 if count == 2 else 2
+    if count >= 5: boards_to_use = 1
     for i in range(boards_to_use):
-        solution_pieces.append({"type":"board","x":board_positions[i].x,"y":board_positions[i].y,"r":0.02})
+        solution_pieces.append({"type":"board","x":board_positions[i].x,"y":board_positions[i].y,"r":0.0})
 
 func to_dict() -> Dictionary:
     var out: Dictionary = {"id":id,"title":title,"difficulty":difficulty,"tutorial":tutorial,"pattern":pattern,"slope_count":slope_count,"start":{"x":start_position.x,"y":start_position.y},"goal":{"x":goal_position.x,"y":goal_position.y,"radius":goal_radius},"inventory":inventory.duplicate(true),"pieces":[],"solution":[]}
