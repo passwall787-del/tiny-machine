@@ -27,6 +27,7 @@ func _run_smoke() -> void:
                 game._on_goal_body_entered(game.runtime.ball)
                 if game.state != 3: failures.append("goal entry did not enter SUCCESS")
         game.queue_free()
+        await process_frame
     if failures.is_empty():
         print("Tiny Machine runtime smoke test: PASS")
         quit(0)
