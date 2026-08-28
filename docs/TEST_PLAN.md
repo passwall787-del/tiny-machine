@@ -111,3 +111,27 @@ CI 必须：
 - APK 非空。
 - SHA-256 可记录。
 - Release asset 可下载。
+
+### 当前构建验收记录
+
+| Build | Run | CI | APK | 设备验收 |
+|---|---:|---|---|---|
+| P1-19 | 33157898382 | PASS | TinyMachineP1.apk / 28,267,151 bytes | 待人工测试 |
+
+SHA-256：
+
+```text
+29f213a71887fc624857048d394585dd7acf0e254ea29fcbef3d98366ba8e942
+```
+
+## 8. 回归原则
+
+凡修改以下内容，必须重新执行 Level 001 + Goal Terminal Test：
+
+- `main.gd` 的 GameState。
+- 目标 Area2D 或碰撞层。
+- RigidBody2D 的 freeze / velocity 逻辑。
+- `piece.gd` 的 simulation_enabled。
+- 关卡目标对象。
+
+P1 新增机关必须至少增加一个最小可解性测试场景，不能只依赖自由测试。
