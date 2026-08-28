@@ -7,7 +7,7 @@ var difficulty: int = 1
 var tutorial: bool = false
 var pattern: String = "basic"
 var slope_count: int = 3
-var goal_position := Vector2(1130, 620)
+var goal_position := Vector2(1130, 590)
 var goal_radius: float = 48.0
 var pieces: Array[Dictionary] = []
 
@@ -20,7 +20,7 @@ static func from_dict(raw: Dictionary) -> LevelData:
     level.pattern = str(raw.get("pattern", "basic"))
     level.slope_count = int(raw.get("slope_count", 3))
     var goal: Dictionary = raw.get("goal", {})
-    level.goal_position = Vector2(float(goal.get("x", 1130)), float(goal.get("y", 620)))
+    level.goal_position = Vector2(float(goal.get("x", 1130)), float(goal.get("y", 590)))
     level.goal_radius = float(goal.get("radius", 48))
     var raw_pieces: Array = raw.get("pieces", [])
     for item in raw_pieces:
