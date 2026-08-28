@@ -220,7 +220,7 @@ func _build_level_02() -> void:
     status_label.text = "第 2 关 · P1：开关 → 齿轮/弹簧 → 目标；绳子与剪刀可直接测试"
 
 func _create_piece(kind: String, pos: Vector2, rot: float = 0.0) -> MachinePiece:
-    var body: PhysicsBody2D
+    var body: Node2D
     if kind == "ball" or kind == "balloon":
         body = RigidBody2D.new()
         body.set("freeze", true)
