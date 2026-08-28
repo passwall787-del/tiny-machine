@@ -20,14 +20,14 @@ func setup(p_type: String, owner_main: Node, pos: Vector2, rot: float = 0.0) -> 
     rotation = rot
     start_position = pos
     start_rotation = rot
-    var collider := self as CollisionObject2D
+    var collider := get_node(".") as CollisionObject2D
     if collider != null:
         collider.input_pickable = true
     simulation_enabled = false
     queue_redraw()
 
 func _ready() -> void:
-    var collider := self as CollisionObject2D
+    var collider := get_node(".") as CollisionObject2D
     if collider != null:
         collider.input_pickable = true
     queue_redraw()
@@ -63,8 +63,9 @@ func _input(event: InputEvent) -> void:
 func _physics_process(delta: float) -> void:
     if main == null or not simulation_enabled:
         return
-    if piece_type == "balloon" and self is RigidBody2D:
-        (self as RigidBody2D).apply_central_force(Vector2(0, -95.0))
+    var rb := get_node(".") as RigidBody2D
+    if piece_type == "balloon" and rb != null:
+        rb.apply_central_force(Vector2(0, -95.0))
     elif piece_type == "gear":
         if active:
             rotation += spin_speed * delta
@@ -78,8 +79,8 @@ func reset_piece() -> void:
     cut = false
     simulation_enabled = false
     dragging = false
-    if self is RigidBody2D:
-        var rb := self as RigidBody2D
+    var rb := get_node(".") as RigidBody2D
+    if rb != null:
         rb.freeze = true
         rb.linear_velocity = Vector2.ZERO
         rb.angular_velocity = 0.0
@@ -94,8 +95,9 @@ func cut_rope() -> void:
     queue_redraw()
 
 func apply_central_impulse(impulse: Vector2) -> void:
-    if self is RigidBody2D:
-        (self as RigidBody2D).apply_central_impulse(impulse)
+    var rb := get_node(".") as RigidBody2D
+    if rb != null:
+        rb.apply_central_impulse(impulse)
 
 func _draw() -> void:
     var selected = main != null and main.selected_piece == self and main.is_editing()
