@@ -4,7 +4,7 @@ enum GameState { EDITING, RUNNING, PAUSED, SUCCESS }
 
 var game_state := GameState.EDITING
 var selected_piece: MachinePiece = null
-var pieces: Array[MachinePiece] = []
+var pieces: Array = []
 var ball: MachinePiece = null
 var target: Area2D = null
 var status_label: Label
