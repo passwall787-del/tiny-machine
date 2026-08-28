@@ -1,4 +1,4 @@
-extends PhysicsBody2D
+extends Node2D
 class_name MachinePiece
 
 var piece_type: String = ""
@@ -20,12 +20,16 @@ func setup(p_type: String, owner_main: Node, pos: Vector2, rot: float = 0.0) -> 
     rotation = rot
     start_position = pos
     start_rotation = rot
-    input_pickable = true
+    var collider := self as CollisionObject2D
+    if collider != null:
+        collider.input_pickable = true
     simulation_enabled = false
     queue_redraw()
 
 func _ready() -> void:
-    input_pickable = true
+    var collider := self as CollisionObject2D
+    if collider != null:
+        collider.input_pickable = true
     queue_redraw()
 
 func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
