@@ -12,8 +12,9 @@
 
 ## P3 自动化结果
 - Run 37：脚本/数据/smoke 门禁通过；32/32 官方默认布局达到 SUCCESS；APK 导出和签名验证通过。
-- Run 38：再次完整通过 32/32；APK 导出和签名验证通过。临时 Litterbox 上传遇到 HTTP 500，但该步骤为可选失败，不影响 GitHub Release。
-- Run 39：playability runner 仅修正成功日志中的 level count 显示，目标是准确输出 `PASS (32 levels)`。
+- Run 38：再次通过 32/32；APK 导出和签名验证通过。临时 Litterbox 上传遇到 HTTP 500，但该步骤为可选失败，不影响 GitHub Release。
+- Run 39：发现日志计数修复引入 GDScript 参数/类型解析错误，未发布 APK。
+- Run 40：修复后完整通过；日志准确输出 `PASS (32 levels)`，APK 导出、签名验证和 GitHub Release 全部成功。
 
 ## Android 真机回归
 ### 核心
