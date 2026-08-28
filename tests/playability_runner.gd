@@ -3,7 +3,9 @@ extends SceneTree
 var failures: Array[String] = []
 var game
 const REQUIRED_LEVELS := 32
-const MAX_FRAMES_PER_LEVEL := 1200
+const TEST_TIME_SCALE := 4.0
+const TEST_TIMEOUT := 8.0
+const MAX_FRAMES_PER_LEVEL := 240
 
 func _initialize() -> void:
     call_deferred("_run")
@@ -23,16 +25,17 @@ func _run() -> void:
 
     if game.levels.size() != REQUIRED_LEVELS:
         failures.append("playability runner expected %d levels, loaded %d" % [REQUIRED_LEVELS, game.levels.size()])
-        _finish()
+        _cleanup_and_finish()
         return
 
-    # Validate real game-time behavior. Do not accelerate the simulation,
-    # otherwise the game's normal 18-second timeout is also accelerated.
-    Engine.time_scale = 1.0
+    # Accelerate only the wall-clock test duration. The game timeout is kept
+    # at 8 seconds of simulated game time, so a bad level fails quickly while
+    # still exercising the normal SUCCESS/FAIL state machine.
+    Engine.time_scale = TEST_TIME_SCALE
 
     for index in range(game.levels.size()):
         game._load_level(index)
-        game.run_timeout = 18.0
+        game.run_timeout = TEST_TIMEOUT
         game.toggle_run()
         var frames := 0
         while game.state == 1 and frames < MAX_FRAMES_PER_LEVEL:
@@ -49,8 +52,13 @@ func _run() -> void:
             await process_frame
 
     Engine.time_scale = 1.0
-    game.queue_free()
-    await process_frame
+    _cleanup_and_finish()
+
+func _cleanup_and_finish() -> void:
+    Engine.time_scale = 1.0
+    if game != null and is_instance_valid(game):
+        game.queue_free()
+        await process_frame
     _finish()
 
 func _finish() -> void:
