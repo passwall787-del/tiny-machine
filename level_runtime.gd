@@ -15,11 +15,13 @@ func _init(main_node: Node, editor_node: Node) -> void:
 func load_level(data: LevelData) -> void:
     clear()
     level = data.duplicate_level()
+
     goal = Area2D.new()
     goal.name = "Goal"
     goal.position = level.goal_position
     goal.collision_layer = 4
     goal.collision_mask = 1
+    goal.monitoring = true
     var shape := CollisionShape2D.new()
     var circle := CircleShape2D.new()
     circle.radius = level.goal_radius
@@ -28,26 +30,36 @@ func load_level(data: LevelData) -> void:
     owner_main.add_child(goal)
     goal.body_entered.connect(Callable(owner_main, "_on_goal_body_entered"))
 
+    var ball_data := {"type":"ball","x":level.start_position.x,"y":level.start_position.y,"r":0.0}
+    ball = ComponentFactory.create_component("ball", ball_data, owner_main, editor)
+    if ball != null:
+        ball.editable = false
+        ball.z_index = 4
+        ball.queue_redraw()
+
     for item in level.pieces:
         var piece := ComponentFactory.create_component(str(item.get("type", "")), item, owner_main, editor)
         if piece == null: continue
         components.append(piece)
-        if piece.piece_type == "ball" and ball == null: ball = piece
+
     reset_runtime()
 
 func clear() -> void:
     for piece in components:
         if is_instance_valid(piece): piece.queue_free()
     components.clear()
+    if is_instance_valid(ball): ball.queue_free()
     ball = null
     if is_instance_valid(goal): goal.queue_free()
     goal = null
 
 func reset_runtime() -> void:
+    if is_instance_valid(ball): ball.reset_runtime()
     for piece in components:
         if is_instance_valid(piece): piece.reset_runtime()
 
 func set_simulation(enabled: bool) -> void:
+    if is_instance_valid(ball): ball.set_simulation(enabled)
     for piece in components:
         if is_instance_valid(piece): piece.set_simulation(enabled)
 
