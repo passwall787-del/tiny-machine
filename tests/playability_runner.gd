@@ -25,7 +25,9 @@ func _run() -> void:
             await process_frame
             frames += 1
         if game.state != 3:
-            failures.append("level %02d default layout did not reach SUCCESS (state=%s)" % [index + 1, str(game.state)])
+            var pos := Vector2.ZERO
+            if game.runtime != null and game.runtime.ball != null: pos = game.runtime.ball.global_position
+            failures.append("level %02d default layout did not reach SUCCESS (state=%s, frames=%d, elapsed=%.2f, ball=%s)" % [index + 1, str(game.state), frames, game.elapsed, str(pos)])
     Engine.time_scale = 1.0
     game.queue_free()
     await process_frame
