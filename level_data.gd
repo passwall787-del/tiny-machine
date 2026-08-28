@@ -26,16 +26,15 @@ static func from_dict(raw: Dictionary) -> LevelData:
     for item in raw_pieces:
         if item is Dictionary:
             level.pieces.append({"type":str(item.get("type","")),"x":float(item.get("x",0)),"y":float(item.get("y",0)),"r":float(item.get("r",0))})
-    if level.pieces.is_empty():
-        level.generate_pattern()
+    if level.pieces.is_empty(): level.generate_pattern()
     return level
 
 func generate_pattern() -> void:
     pieces.clear()
     pieces.append({"type":"ball","x":300.0,"y":180.0,"r":0.0})
-    var count: int = clampi(slope_count, 2, 5)
+    var count: int = 5
     for i in range(count):
-        pieces.append({"type":"slope","x":360.0 + i * 180.0,"y":250.0 + i * 95.0,"r":0.30})
+        pieces.append({"type":"slope","x":320.0 + i * 190.0,"y":230.0 + i * 95.0,"r":0.30})
     pieces.append({"type":"board","x":1135.0,"y":665.0,"r":0.0})
     match pattern:
         "step":
@@ -66,8 +65,7 @@ func generate_pattern() -> void:
 
 func to_dict() -> Dictionary:
     var out: Dictionary = {"id":id,"title":title,"difficulty":difficulty,"tutorial":tutorial,"pattern":pattern,"slope_count":slope_count,"goal":{"x":goal_position.x,"y":goal_position.y,"radius":goal_radius},"pieces":[]}
-    for p in pieces:
-        out["pieces"].append(p.duplicate(true))
+    for p in pieces: out["pieces"].append(p.duplicate(true))
     return out
 
 func duplicate_level() -> LevelData:
