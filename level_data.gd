@@ -49,6 +49,12 @@ static func from_dict(raw: Dictionary) -> LevelData:
         level.generate_solution()
     return level
 
+func generate_pattern() -> void:
+    pieces.clear()
+    solution_pieces.clear()
+    generate_inventory()
+    generate_solution()
+
 func generate_inventory() -> void:
     inventory = {"board":1,"slope":slope_count}
     match pattern:
