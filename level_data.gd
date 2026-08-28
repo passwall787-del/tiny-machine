@@ -38,25 +38,25 @@ func generate_pattern() -> void:
     pieces.append({"type":"board","x":1135.0,"y":665.0,"r":0.0})
     match pattern:
         "step": pieces.append({"type":"board","x":690.0,"y":650.0,"r":0.0})
-        "spring": pieces.append({"type":"spring","x":760.0,"y":620.0,"r":0.0})
+        "spring": pieces.append({"type":"spring","x":760.0,"y":200.0,"r":0.0})
         "switch":
-            pieces.append({"type":"switch","x":680.0,"y":640.0,"r":0.0})
-            pieces.append({"type":"spring","x":840.0,"y":640.0,"r":0.0})
+            pieces.append({"type":"switch","x":680.0,"y":200.0,"r":0.0})
+            pieces.append({"type":"spring","x":840.0,"y":200.0,"r":0.0})
         "gear":
-            pieces.append({"type":"switch","x":680.0,"y":640.0,"r":0.0})
-            pieces.append({"type":"gear","x":900.0,"y":640.0,"r":0.0})
-            pieces.append({"type":"spring","x":1020.0,"y":640.0,"r":0.0})
+            pieces.append({"type":"switch","x":680.0,"y":200.0,"r":0.0})
+            pieces.append({"type":"gear","x":900.0,"y":200.0,"r":0.0})
+            pieces.append({"type":"spring","x":1020.0,"y":200.0,"r":0.0})
         "rope":
-            pieces.append({"type":"rope","x":430.0,"y":625.0,"r":0.0})
-            pieces.append({"type":"scissors","x":560.0,"y":625.0,"r":0.0})
-        "air": pieces.append({"type":"balloon","x":1020.0,"y":300.0,"r":0.0})
-        "magnet": pieces.append({"type":"magnet","x":1020.0,"y":640.0,"r":0.0})
-        "bomb": pieces.append({"type":"bomb","x":980.0,"y":640.0,"r":0.0})
+            pieces.append({"type":"rope","x":430.0,"y":650.0,"r":0.0})
+            pieces.append({"type":"scissors","x":560.0,"y":650.0,"r":0.0})
+        "air": pieces.append({"type":"balloon","x":1020.0,"y":200.0,"r":0.0})
+        "magnet": pieces.append({"type":"magnet","x":1180.0,"y":200.0,"r":0.0})
+        "bomb": pieces.append({"type":"bomb","x":1180.0,"y":300.0,"r":0.0})
         "combo":
-            pieces.append({"type":"switch","x":680.0,"y":640.0,"r":0.0})
-            pieces.append({"type":"gear","x":900.0,"y":640.0,"r":0.0})
-            pieces.append({"type":"magnet","x":1000.0,"y":640.0,"r":0.0})
-            pieces.append({"type":"bomb","x":930.0,"y":640.0,"r":0.0})
+            pieces.append({"type":"switch","x":650.0,"y":200.0,"r":0.0})
+            pieces.append({"type":"gear","x":820.0,"y":200.0,"r":0.0})
+            pieces.append({"type":"magnet","x":1120.0,"y":200.0,"r":0.0})
+            pieces.append({"type":"bomb","x":1180.0,"y":300.0,"r":0.0})
 
 func to_dict() -> Dictionary:
     var out: Dictionary = {"id":id,"title":title,"difficulty":difficulty,"tutorial":tutorial,"pattern":pattern,"slope_count":slope_count,"goal":{"x":goal_position.x,"y":goal_position.y,"radius":goal_radius},"pieces":[]}
