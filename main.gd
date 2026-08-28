@@ -158,12 +158,12 @@ func _build_level() -> void:
     add_child(target)
     target.body_entered.connect(_on_target_body_entered)
 
-    # First level: a deliberately continuous downhill route. The ball starts above slope 1,
-    # transfers across small gaps to slopes 2/3, then rolls along the final board through the goal.
-    _create_piece("slope", Vector2(350, 300), 0.18)
-    _create_piece("slope", Vector2(625, 420), 0.18)
-    _create_piece("slope", Vector2(885, 530), 0.15)
-    _create_piece("board", Vector2(1060, 600), 0.12)
+    # Level 1 is a solvable staircase: each slope descends to the right,
+    # the next slope catches the ball, and the final board carries it through the goal.
+    _create_piece("slope", Vector2(350, 300), 0.30)
+    _create_piece("slope", Vector2(600, 400), 0.30)
+    _create_piece("slope", Vector2(850, 500), 0.30)
+    _create_piece("board", Vector2(1060, 590), 0.12)
     ball = _create_piece("ball", Vector2(310, 155), 0.0)
     status_label.text = "第 1 关 · 让小球沿斜坡滚入右下角目标"
 
