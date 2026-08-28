@@ -18,6 +18,8 @@ Tiny Machine 是一个面向 Android 的 2D 物理机关解谜游戏原型，玩
 - Input: 鼠标 + Android 触摸
 - Backend: 无，P0 完全离线
 
+**接手项目先读：[当前项目状态](docs/PROJECT_STATUS.md)。**
+
 ## 核心循环
 
 ```text
@@ -57,13 +59,18 @@ Tiny Machine 是一个面向 Android 的 2D 物理机关解谜游戏原型，玩
 ├── main.gd                    # P0 场景、UI、关卡和运行控制
 ├── piece.gd                   # 机械组件基础类
 ├── docs/                      # 项目完整文档
+├── CHANGELOG.md               # 版本变更记录
+├── CONTRIBUTING.md            # 协作规范
 └── .github/workflows/         # Android CI 构建
 ```
 
 ## 文档入口
 
+完整文档索引：[docs/INDEX.md](docs/INDEX.md)
+
 | 文档 | 内容 |
 |---|---|
+| [当前项目状态](docs/PROJECT_STATUS.md) | 当前实现、技术债、下一步和交接信息 |
 | [产品与范围](docs/PRODUCT.md) | 产品目标、定位、阶段边界、非目标 |
 | [游戏规则](docs/GAMEPLAY.md) | 玩家规则、成功/失败、状态机、输入行为 |
 | [架构](docs/ARCHITECTURE.md) | 场景、脚本、数据流、模块边界、未来重构方向 |
@@ -74,9 +81,12 @@ Tiny Machine 是一个面向 Android 的 2D 物理机关解谜游戏原型，玩
 | [Android 构建](docs/BUILD_ANDROID.md) | 本地和 GitHub Actions 构建、签名、发布 |
 | [开发规范](docs/DEVELOPMENT.md) | 分支、提交、代码风格、测试和调试流程 |
 | [测试计划](docs/TEST_PLAN.md) | P0 验收、回归、Android 真机测试清单 |
+| [调试指南](docs/DEBUGGING.md) | 物理、UI、触摸、CI 等问题的排查方法 |
 | [路线图](docs/ROADMAP.md) | P0 → P1 → 编辑器 → 在线关卡的开发计划 |
 | [架构决策记录](docs/ADR.md) | 关键技术决策及原因 |
+| [发布检查](docs/RELEASE_CHECKLIST.md) | 发布前功能、物理、Android、签名检查 |
 | [变更记录](CHANGELOG.md) | 每个版本的变更摘要 |
+| [协作规范](CONTRIBUTING.md) | Bug、PR、开发前后的基本要求 |
 
 ## 本地运行
 
