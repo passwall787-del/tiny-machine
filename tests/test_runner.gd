@@ -16,7 +16,7 @@ func _initialize() -> void:
         quit(1)
 
 func _test_scripts_parse() -> void:
-    var scripts := ["main.gd","machine_component.gd","component_factory.gd","level_runtime.gd","level_data.gd","level_validator.gd","audio_manager.gd"]
+    var scripts := ["main.gd","machine_component.gd","component_factory.gd","level_runtime.gd","level_data.gd","level_validator.gd","audio_manager.gd","part_button.gd"]
     for path in scripts:
         var resource = load("res://" + path)
         if resource == null or not resource is GDScript or not resource.can_instantiate():
@@ -43,10 +43,9 @@ func _test_level_catalog() -> void:
         seen[level.id] = true
         var validation := LevelValidator.validate(level)
         if not validation.ok: failures.append("level %d invalid: %s" % [level.id, "; ".join(validation.errors)])
-        var balls := 0
-        for piece in level.pieces:
-            if str(piece.get("type", "")) == "ball": balls += 1
-        if balls != 1: failures.append("level %d must contain exactly one ball" % level.id)
+        if not level.pieces.is_empty(): failures.append("level %d must start with an empty construction area" % level.id)
+        if level.solution_pieces.is_empty(): failures.append("level %d has no automated solution layout" % level.id)
+        if int(level.inventory.get("slope",0)) < 2: failures.append("level %d has fewer than two starter slopes" % level.id)
 
 func _test_level_serialization() -> void:
     var level := LevelData.new()
@@ -56,10 +55,20 @@ func _test_level_serialization() -> void:
     level.pattern = "combo"
     level.slope_count = 4
     level.generate_pattern()
+    var placed := {"type":"slope","x":400.0,"y":260.0,"r":0.2}
+    level.pieces.append(placed)
     var restored := LevelData.from_dict(level.to_dict())
-    if restored.id != level.id or restored.pieces.size() != level.pieces.size(): failures.append("LevelData serialization roundtrip failed")
+    if restored.id != level.id: failures.append("LevelData serialization id failed")
+    if restored.pieces.size() != level.pieces.size(): failures.append("LevelData serialization placed-pieces failed")
+    if restored.inventory != level.inventory: failures.append("LevelData serialization inventory failed")
+    if restored.solution_pieces.size() != level.solution_pieces.size(): failures.append("LevelData serialization solution failed")
 
 func _test_validator() -> void:
+    var empty := LevelData.new()
+    empty.generate_pattern()
+    var empty_result := LevelValidator.validate(empty)
+    if not empty_result.ok: failures.append("validator rejected a valid empty construction state")
+
     var bad := LevelData.new()
     bad.goal_position = Vector2(-10, -10)
     bad.pieces = [{"type":"unknown","x":100,"y":100,"r":0}]
