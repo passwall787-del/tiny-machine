@@ -13,6 +13,7 @@ var active := false
 var triggered := false
 var cut := false
 var spent := false
+var editable := true
 var spin_speed := 2.8
 
 func setup(kind: String, owner: Node, editor_node: Node, pos: Vector2, rot: float) -> void:
@@ -26,18 +27,18 @@ func setup(kind: String, owner: Node, editor_node: Node, pos: Vector2, rot: floa
     var node: Node = self
     if node is CollisionObject2D:
         var collider: CollisionObject2D = node
-        collider.input_pickable = true
+        collider.input_pickable = editable
     queue_redraw()
 
 func _ready() -> void:
     var node: Node = self
     if node is CollisionObject2D:
         var collider: CollisionObject2D = node
-        collider.input_pickable = true
+        collider.input_pickable = editable
     queue_redraw()
 
 func _is_editing() -> bool:
-    return editor != null and editor.has_method("is_editing") and editor.is_editing()
+    return editable and editor != null and editor.has_method("is_editing") and editor.is_editing()
 
 func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
     if not _is_editing(): return
@@ -114,74 +115,111 @@ func _physics_process(delta: float) -> void:
         queue_redraw()
 
 func _draw() -> void:
-    var selected: bool = false
+    var selected := false
     if editor != null and editor.has_method("is_piece_selected"):
         selected = bool(editor.is_piece_selected(self)) and _is_editing()
-    var outline := 5.0 if selected else 3.0
+    var outline := Color("#6ed5ff") if selected else Color("#25374a")
+    var shadow := Color(0, 0, 0, 0.22)
+
     match piece_type:
         "ball":
-            draw_circle(Vector2.ZERO, 24.0, Color("#e7edf5"))
-            draw_circle(Vector2.ZERO, 18.0, Color("#70b8ff"))
-            draw_circle(Vector2(-6, -7), 5.0, Color(1, 1, 1, 0.55))
-            draw_arc(Vector2.ZERO, 24.0, 0, TAU, 48, Color("#243041"), outline)
+            draw_circle(Vector2(3, 5), 25, shadow)
+            draw_circle(Vector2.ZERO, 25, Color("#f4f7fb"))
+            draw_circle(Vector2.ZERO, 20, Color("#5ba9ff"))
+            draw_circle(Vector2(-7, -8), 6, Color(1, 1, 1, 0.65))
+            draw_arc(Vector2.ZERO, 25, 0, TAU, 48, outline, 3)
+            draw_arc(Vector2.ZERO, 19, 0.35, 2.5, 32, Color("#c8e5ff"), 2)
         "board":
-            var rect := Rect2(-125, -15, 250, 30)
-            draw_rect(rect, Color("#c88a4a"), true)
-            draw_rect(rect, Color("#5c3b22"), false, outline)
+            var rect := Rect2(-128, -16, 256, 32)
+            draw_rect(Rect2(rect.position + Vector2(4, 5), rect.size), shadow, true)
+            draw_rect(rect, Color("#b8753c"), true)
+            draw_rect(Rect2(-128, -16, 256, 8), Color("#e0a05d"), true)
+            for x in range(-110, 111, 44): draw_line(Vector2(x, -7), Vector2(x + 10, 10), Color("#8d552f"), 2)
+            draw_rect(rect, outline, false, 3)
+            draw_circle(Vector2(-112, 0), 3, Color("#e8c18e"))
+            draw_circle(Vector2(112, 0), 3, Color("#e8c18e"))
         "slope":
-            var slope_rect := Rect2(-125, -14, 250, 28)
-            draw_rect(slope_rect, Color("#d39a58"), true)
-            draw_rect(slope_rect, Color("#5c3b22"), false, outline)
-            draw_line(Vector2(-108, 0), Vector2(108, 0), Color("#f0c17d"), 3, true)
+            var poly := PackedVector2Array([Vector2(-128, 15), Vector2(128, -18), Vector2(128, 15)])
+            draw_colored_polygon(PackedVector2Array([Vector2(-124, 20),Vector2(124,-13),Vector2(124,20)]), shadow)
+            draw_colored_polygon(poly, Color("#c98948"))
+            draw_polyline(poly, outline, 3, true)
+            draw_line(Vector2(-110, 5), Vector2(110, -13), Color("#f1c27e"), 4, true)
+            for x in range(-100, 101, 40): draw_line(Vector2(x, 7 - (x + 110) * 0.13), Vector2(x + 16, 12 - (x + 110) * 0.13), Color("#9d5f32"), 2)
         "spring":
-            var spring_color := Color("#45a4ff") if active else Color("#536a85")
-            draw_rect(Rect2(-55, -13, 110, 26), spring_color, true)
-            draw_rect(Rect2(-55, -13, 110, 26), Color("#d9e8f7"), false, outline)
-            draw_line(Vector2(15, 0), Vector2(48, 0), Color.WHITE, 3)
-            draw_line(Vector2(48, 0), Vector2(38, -7), Color.WHITE, 3)
-            draw_line(Vector2(48, 0), Vector2(38, 7), Color.WHITE, 3)
+            var base := Color("#3f9dff") if active else Color("#59708a")
+            draw_rect(Rect2(-58, -16, 116, 32), shadow, true)
+            draw_rect(Rect2(-58, -16, 116, 32), Color("#25364b"), true)
+            draw_rect(Rect2(-54, -12, 108, 24), base, true)
+            var points := PackedVector2Array()
+            for i in range(9):
+                var px := -42.0 + float(i) * 10.5
+                var py := -7.0 if i % 2 == 0 else 7.0
+                points.append(Vector2(px, py))
+            draw_polyline(points, Color("#f3f8ff"), 3, true)
+            draw_line(Vector2(32, 0), Vector2(48, 0), Color("#f3f8ff"), 3)
+            draw_line(Vector2(48, 0), Vector2(39, -7), Color("#f3f8ff"), 3)
+            draw_line(Vector2(48, 0), Vector2(39, 7), Color("#f3f8ff"), 3)
         "rope":
-            var rope_color := Color("#f1b84b") if not cut else Color("#9b4d4d")
+            var rope_color := Color("#e5a53f") if not cut else Color("#92565a")
             if not cut:
-                draw_line(Vector2(-90, 0), Vector2(90, 0), rope_color, 8, true)
+                draw_line(Vector2(-92, 0), Vector2(92, 0), shadow, 10, true)
+                draw_line(Vector2(-92, 0), Vector2(92, 0), rope_color, 7, true)
+                for x in range(-80, 81, 24): draw_arc(Vector2(x, 0), 7, 0, PI, 8, Color("#f7ca70"), 2)
             else:
-                draw_line(Vector2(-90, 0), Vector2(-14, 0), rope_color, 8, true)
-                draw_line(Vector2(14, 0), Vector2(90, 0), rope_color, 8, true)
-                draw_circle(Vector2.ZERO, 10, Color("#e85d5d"))
+                draw_line(Vector2(-92, 0), Vector2(-16, 0), rope_color, 7, true)
+                draw_line(Vector2(16, 0), Vector2(92, 0), rope_color, 7, true)
+                draw_circle(Vector2.ZERO, 9, Color("#ef6868"))
         "scissors":
-            draw_line(Vector2(-34, -11), Vector2(34, 11), Color("#d9e3ee"), 7, true)
-            draw_line(Vector2(-34, 11), Vector2(34, -11), Color("#d9e3ee"), 7, true)
-            draw_circle(Vector2(-32, -14), 12, Color("#e17b6c"), false, 4)
-            draw_circle(Vector2(-32, 14), 12, Color("#e17b6c"), false, 4)
-            if triggered: draw_arc(Vector2.ZERO, 50, -0.4, 0.4, 20, Color("#ff6f61"), 4)
+            draw_circle(Vector2(-31, -14), 14, Color("#e77e72"), false, 5)
+            draw_circle(Vector2(-31, 14), 14, Color("#e77e72"), false, 5)
+            draw_line(Vector2(-22, -9), Vector2(40, 17), Color("#dfe9f4"), 7, true)
+            draw_line(Vector2(-22, 9), Vector2(40, -17), Color("#dfe9f4"), 7, true)
+            draw_line(Vector2(40, 17), Vector2(23, 11), Color("#91a6bb"), 2)
+            draw_line(Vector2(40, -17), Vector2(23, -11), Color("#91a6bb"), 2)
+            if triggered: draw_arc(Vector2(15, 0), 34, -0.55, 0.55, 20, Color("#ff7066"), 4)
         "gear":
-            var gear_color := Color("#4da7ff") if active else Color("#6f91b6")
-            draw_circle(Vector2.ZERO, 38, gear_color)
+            var gear_color := Color("#4fa9ff") if active else Color("#6f8ca8")
+            draw_circle(Vector2(3, 4), 42, shadow)
             for i in range(12):
-                var angle := TAU * float(i) / 12.0
-                draw_line(Vector2.RIGHT.rotated(angle) * 34.0, Vector2.RIGHT.rotated(angle) * 48.0, gear_color, 9, true)
-            draw_circle(Vector2.ZERO, 12, Color("#172131"))
-            draw_circle(Vector2.ZERO, 5, Color("#dce8f5"))
+                var a := TAU * float(i) / 12.0
+                draw_line(Vector2.RIGHT.rotated(a) * 34, Vector2.RIGHT.rotated(a) * 49, gear_color, 10, true)
+            draw_circle(Vector2.ZERO, 39, gear_color)
+            draw_circle(Vector2.ZERO, 14, Color("#172434"))
+            draw_circle(Vector2.ZERO, 6, Color("#e6f0fb"))
+            draw_arc(Vector2.ZERO, 28, -1.8, 0.2, 24, Color(1, 1, 1, 0.28), 3)
         "switch":
-            var switch_color := Color("#4bd58a") if active else Color("#68768a")
-            draw_rect(Rect2(-55, -14, 110, 28), switch_color, true)
-            draw_rect(Rect2(-55, -14, 110, 28), Color("#e6eef6"), false, outline)
-            draw_string(ThemeDB.fallback_font, Vector2(-17, 5), "ON" if active else "OFF", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
+            var switch_color := Color("#49d88a") if active else Color("#718097")
+            draw_rect(Rect2(-59, -18, 118, 36), shadow, true)
+            draw_rect(Rect2(-59, -18, 118, 36), Color("#243447"), true)
+            draw_rect(Rect2(-54, -13, 108, 26), switch_color, true)
+            draw_circle(Vector2(34, 0), 9, Color("#effff5") if active else Color("#b7c3d0"))
+            draw_line(Vector2(-15, 0), Vector2(12, -14 if not active else 14), Color("#f5f8fb"), 5, true)
+            draw_string(ThemeDB.fallback_font, Vector2(-43, 5), "ON" if active else "OFF", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("#10202e"))
         "balloon":
-            draw_circle(Vector2.ZERO, 28, Color("#ff8a9a"))
-            draw_circle(Vector2(-8, -9), 7, Color(1, 1, 1, 0.28))
-            draw_line(Vector2(0, 28), Vector2(0, 58), Color("#d9e0e8"), 2)
+            draw_line(Vector2(0, 28), Vector2(0, 68), Color("#dce5ef"), 2)
+            draw_circle(Vector2(0, 2), 30, shadow)
+            draw_circle(Vector2.ZERO, 30, Color("#ff748e"))
+            draw_circle(Vector2(-9, -10), 8, Color(1, 1, 1, 0.28))
+            draw_circle(Vector2(0, 31), 4, Color("#e45b78"))
         "magnet":
-            var magnet_color := Color("#ff6878") if active else Color("#7f8794")
-            draw_arc(Vector2.ZERO, 34, 0, PI, 24, magnet_color, 10)
-            draw_line(Vector2(-34, 0), Vector2(-34, -20), magnet_color, 10)
-            draw_line(Vector2(34, 0), Vector2(34, -20), Color("#65aaff"), 10)
-            draw_arc(Vector2.ZERO, 60, 0, TAU, 40, Color(1, 0.4, 0.5, 0.16), 2)
+            var red := Color("#ef6273") if active else Color("#9a6570")
+            var blue := Color("#5ca8ff")
+            draw_arc(Vector2.ZERO, 38, PI, TAU, 28, red, 11)
+            draw_line(Vector2(-38, 0), Vector2(-38, -22), red, 11, true)
+            draw_line(Vector2(38, 0), Vector2(38, -22), blue, 11, true)
+            draw_circle(Vector2(-38, -22), 6, Color("#f5f7fa"))
+            draw_circle(Vector2(38, -22), 6, Color("#f5f7fa"))
+            if active: draw_arc(Vector2.ZERO, 60, 0, TAU, 48, Color(0.95,0.35,0.45,0.14), 3)
         "bomb":
-            var bomb_color := Color("#e65c5c") if not spent else Color("#5b6572")
-            draw_circle(Vector2.ZERO, 30, bomb_color)
-            draw_line(Vector2(12, -24), Vector2(26, -38), Color("#e9d49a"), 6)
-            draw_circle(Vector2(28, -40), 6, Color("#ffd66b"))
+            var bomb_color := Color("#e45b5b") if not spent else Color("#6d7784")
+            draw_circle(Vector2(3, 5), 31, shadow)
+            draw_circle(Vector2.ZERO, 31, bomb_color)
+            draw_circle(Vector2(-8, -10), 7, Color(1, 1, 1, 0.2))
+            draw_line(Vector2(12, -24), Vector2(29, -41), Color("#e9d39c"), 6, true)
+            draw_circle(Vector2(32, -44), 7, Color("#ffd96c"))
+            draw_circle(Vector2(32, -44), 3, Color("#fff3c2"))
+
     if selected:
-        var radius := 145.0 if piece_type in ["board", "slope"] else 58.0
-        draw_arc(Vector2.ZERO, radius, 0, TAU, 64, Color("#72d8ff"), 2)
+        var radius := 142.0 if piece_type in ["board", "slope"] else 62.0
+        draw_arc(Vector2.ZERO, radius, 0, TAU, 64, Color("#69d8ff"), 3)
+        draw_circle(Vector2(0, -radius), 6, Color("#69d8ff"))
