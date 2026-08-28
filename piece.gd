@@ -53,10 +53,10 @@ func _input(event: InputEvent) -> void:
 func reset_piece() -> void:
     global_position = start_position
     rotation = start_rotation
-    if self is RigidBody2D:
-        linear_velocity = Vector2.ZERO
-        angular_velocity = 0.0
-        sleeping = true
+    if piece_type == "ball":
+        set("linear_velocity", Vector2.ZERO)
+        set("angular_velocity", 0.0)
+        set("sleeping", true)
     queue_redraw()
 
 func _draw() -> void:
