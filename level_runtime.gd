@@ -30,50 +30,44 @@ func load_level(data: LevelData) -> void:
 
     for item in level.pieces:
         var piece := ComponentFactory.create_component(str(item.get("type", "")), item, owner_main, editor)
-        if piece == null:
-            continue
+        if piece == null: continue
         components.append(piece)
-        if piece.piece_type == "ball" and ball == null:
-            ball = piece
+        if piece.piece_type == "ball" and ball == null: ball = piece
     reset_runtime()
 
 func clear() -> void:
     for piece in components:
-        if is_instance_valid(piece):
-            piece.queue_free()
+        if is_instance_valid(piece): piece.queue_free()
     components.clear()
     ball = null
-    if is_instance_valid(goal):
-        goal.queue_free()
+    if is_instance_valid(goal): goal.queue_free()
     goal = null
 
 func reset_runtime() -> void:
     for piece in components:
-        if is_instance_valid(piece):
-            piece.reset_runtime()
+        if is_instance_valid(piece): piece.reset_runtime()
 
 func set_simulation(enabled: bool) -> void:
     for piece in components:
-        if is_instance_valid(piece):
-            piece.set_simulation(enabled)
+        if is_instance_valid(piece): piece.set_simulation(enabled)
 
 func capture_layout() -> Array:
     var result: Array = []
     for piece in components:
-        if not is_instance_valid(piece):
-            continue
+        if not is_instance_valid(piece): continue
         result.append({"type":piece.piece_type,"x":piece.global_position.x,"y":piece.global_position.y,"r":piece.rotation})
     return result
 
 func capture_level() -> LevelData:
     var out := level.duplicate_level()
-    out.pieces = capture_layout()
+    out.pieces.clear()
+    for item in capture_layout():
+        if item is Dictionary: out.pieces.append(item.duplicate(true))
     return out
 
 func apply_layout(layout: Array) -> void:
     var out := level.duplicate_level()
-    out.pieces = []
+    out.pieces.clear()
     for item in layout:
-        if item is Dictionary:
-            out.pieces.append(item.duplicate(true))
+        if item is Dictionary: out.pieces.append(item.duplicate(true))
     load_level(out)

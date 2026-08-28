@@ -65,8 +65,7 @@ func _load_levels() -> void:
         return
     var raw_levels: Array = parsed.get("levels", [])
     for raw in raw_levels:
-        if raw is Dictionary:
-            levels.append(LevelData.from_dict(raw))
+        if raw is Dictionary: levels.append(LevelData.from_dict(raw))
 
 func _create_boundaries() -> void:
     var floor := StaticBody2D.new()
@@ -339,7 +338,10 @@ func drag_piece_to(_piece: MachineComponent, target: Vector2) -> void:
     queue_redraw()
 
 func _sync_working_level() -> void:
-    if current_level != null and runtime != null: current_level.pieces = runtime.capture_layout()
+    if current_level != null and runtime != null:
+        current_level.pieces.clear()
+        for item in runtime.capture_layout():
+            if item is Dictionary: current_level.pieces.append(item.duplicate(true))
 
 func _snap(pos: Vector2) -> Vector2:
     return Vector2(round(pos.x / GRID) * GRID, round(pos.y / GRID) * GRID)

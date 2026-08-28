@@ -2,15 +2,16 @@
 
 ## 当前阶段
 
-**P3 首轮交付，已通过代码级 CI，等待/进行 Android 真机体验回归。**
+**P3 首轮交付，自动化回归正在收敛，尚未把 APK 标记为最终测试版。**
 
 P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关卡、教程、难度曲线、成功/失败反馈、程序化音效和轻量 BGM。
 
 ## 最近自动化回归
 
-- Run 23：先发现 `MachineComponent` 类型推断导致主脚本解析失败；已修复。
-- Run 24：新增 `can_instantiate()` 脚本检查和 runtime smoke test。
-- 当前构建流程要求：脚本可实例化 + 32 关数据测试 + 主场景 smoke + Android 导出。
+- Run 23：代码级构建成功，但当时 smoke 尚未覆盖主场景运行时。
+- Run 24：新增 runtime smoke 后发现真实运行时问题：`LevelData.pieces` 是 typed `Array[Dictionary]`，不能直接接收普通 `Array`；同时 workflow 在测试失败时仍错误创建空 Release。
+- 已修复：`LevelRuntime.capture_level/apply_layout` 与 `main._sync_working_level` 改为逐项写入 typed array；Release 改为只在完整构建成功后发布。
+- 下一次 CI 必须同时通过脚本加载检查、32 关数据测试、主场景 smoke 和 Android 导出。
 
 ## 架构
 
@@ -50,14 +51,12 @@ main.tscn
 
 ## 下一轮工作
 
-优先级不是继续堆功能，而是：
-
 ```text
-P3 APK → 真机逐关测试 → 记录问题 → 修复 → CI → 再真机
-                    ↓
-             物理/操作稳定
-                    ↓
-             冻结官方关卡
-                    ↓
-                  P4
+自动化修复回归 → P3 APK → Android 真机逐关测试
+                         ↓
+                 记录问题/修复/再 CI
+                         ↓
+                    冻结官方关卡
+                         ↓
+                         P4
 ```

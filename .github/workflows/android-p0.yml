@@ -57,7 +57,7 @@ jobs:
           echo "Temporary download URL: $URL"
 
       - name: Publish public GitHub release
-        if: ${{ !cancelled() }}
+        if: ${{ success() }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: tiny-machine-p3-${{ github.run_number }}
