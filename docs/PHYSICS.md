@@ -2,139 +2,123 @@
 
 ## 1. 引擎
 
-当前使用 Godot 2D Physics。P0 只使用基础刚体和静态碰撞体。
+- Godot 4.7.2
+- 2D physics
+- Ball / Balloon 使用 RigidBody2D
+- 固定碰撞面使用 StaticBody2D
+- Gear 使用 AnimatableBody2D 原型
 
-原则：优先使用 Godot 内置物理能力，不在项目层重新实现刚体求解器。
+Godot 的 RigidBody2D 应通过力/冲量驱动，而不是在运行中直接持续修改位置。P1 的弹簧和齿轮使用一次性 `apply_central_impulse()` 触发。citeturn5search2turn2search6
 
-## 2. 物体类型
+## 2. 碰撞层
 
-### RigidBody2D
+### Layer 1
 
-适合：
+真实物理实体：
 
-- 小球
-- 箱子
-- 可移动重物
-- 气球等动态对象
+- Ball
+- Board
+- Slope
+- Gear
+- Balloon
 
-### StaticBody2D
+### Layer 2
 
-适合：
+编辑/触发组件：
 
-- 地面
-- 固定墙
-- 木板
-- 静态斜坡
+- Spring
+- Rope
+- Scissors
+- Switch
 
-### Area2D
+它们不应该阻挡 Ball。
 
-适合：
+### Target
 
-- 目标区
-- 触发区
-- 感应器
-- 机关检测范围
+Target 是 Area2D，使用 mask 检测 Ball。Area2D 的 `body_entered` 用于接收 PhysicsBody2D 进入事件。citeturn0search2
 
-### AnimatableBody2D
-
-未来适合：
-
-- 按规则运动的平台
-- 齿轮表面
-- 机械臂
-
-## 3. P0 物理参数原则
-
-小球当前：
-
-- mass：1.0
-- gravity_scale：1.0
-- linear_damp：0.05
-- angular_damp：0.05
-- radius：24 px
-
-正式版本不要把这些值散落在代码中，应集中到组件配置或 PhysicsProfile。
-
-## 4. 碰撞层规划
-
-P1 建议统一规划：
-
-| Layer | 名称 | 用途 |
-|---:|---|---|
-| 1 | dynamic | 普通动态物体 |
-| 2 | static | 固定机关 |
-| 3 | sensor | 目标/检测区 |
-| 4 | trigger | 触发机关 |
-| 5 | special | 特殊物理 |
-
-碰撞 mask 必须按组件需求配置，不允许为了“省事”全部互相碰撞。
-
-## 5. 可解性原则
-
-关卡物理不能依赖极端数值：
-
-- 不使用接近零尺寸的碰撞体。
-- 不让目标尺寸小到需要像素级操作。
-- 不让连续碰撞依赖单帧穿透。
-- 不依赖随机初始速度。
-- 不使用不可预测的浮点阈值作为主要解题条件。
-
-## 6. 斜坡规范
-
-斜坡的三个部分必须保持一致：
+## 3. P1 触发模型
 
 ```text
-视觉多边形
-      ↕
-碰撞多边形
-      ↕
-旋转角度
+Ball position
+     ↓
+component trigger radius
+     ↓
+component.triggered
+     ↓
+one-shot impulse / state change
 ```
 
-新增斜坡时必须确认视觉表面与 CollisionPolygon2D 的接触边一致。
+一次性冲量不能放在每帧循环中，否则会产生帧率相关行为；Godot 文档明确将 central impulse 定义为一次性冲击用途。citeturn5search2
 
-当前 P0 曾出现“视觉方向与物理方向不一致”的问题，已经作为关卡验证案例记录。以后新增倾斜组件必须进行真机/运行时验证。
+## 4. Spring
 
-## 7. 物理稳定性
+- Trigger radius：约 72 px。
+- 每次运行最多触发一次。
+- 方向：`Vector2.RIGHT.rotated(rotation)`。
+- 默认冲量：约 620。
 
-连续碰撞是此类游戏的核心，因此 P1 应重点测试：
+## 5. Gear
 
-- 球在斜坡上的滚动
-- 球与木板边缘碰撞
-- 多物体同时碰撞
-- 高速物体穿透
-- 角落卡死
-- 物体堆叠
-- 长时间运行后的能量累积
+- 激活后持续旋转。
+- 小球进入约 76 px 后产生一次切向冲量。
+- 当前只是 P1 原型，不是严格齿轮约束求解。
 
-## 8. 时间步
+## 6. Balloon
 
-游戏逻辑不应该假设每帧时间固定。凡是与时间相关的机关，应使用物理时间或明确的计时器。
+- RigidBody2D。
+- 初始 gravity_scale 为负值。
+- 运行期间额外施加向上力。
+- Reset 时恢复 freeze、速度和位置。
 
-涉及物理运动的代码优先放在 `_physics_process()` 或物理系统回调中，而不是普通 `_process()`。
+## 7. Rope
 
-## 9. Reset 的物理要求
+当前 P1 只实现：
 
-重置必须清除：
+- 完整状态。
+- 剪断状态。
+- 视觉断裂。
 
-- linear_velocity
-- angular_velocity
-- sleep 状态
-- freeze 状态
-- 关节状态
-- 临时力/冲量
-- 机关内部状态
+尚未实现真实约束。
 
-否则同一关卡连续重试可能出现不同结果。
+后续正式绳索应考虑 Joint2D。Godot 的 Joint2D 用于绑定两个 PhysicsBody2D 并施加约束。citeturn3search1
 
-## 10. 调试工具计划
+## 8. Pause
 
-P1/P2 建议增加开发者模式：
+Pause：
 
-- 显示碰撞体
-- 显示速度向量
-- 显示物体 ID
-- 单步物理
-- 显示目标判定
-- 记录碰撞事件
-- 导出运行轨迹
+- freeze RigidBody2D。
+- 禁止组件逻辑继续运行。
+- 不清零当前速度。
+
+Resume：
+
+- 解除 freeze。
+- 恢复组件 simulation_enabled。
+
+## 9. Success / 终止
+
+目标进入事件是硬终止：
+
+```text
+Area2D.body_entered
+        ↓
+GameState.SUCCESS
+        ↓
+freeze all RigidBody2D
+        ↓
+zero velocity
+        ↓
+disable component simulation
+```
+
+这样通关截图/状态不会因为后续物理运动而改变。
+
+## 10. 可解性要求
+
+每个关卡必须：
+
+- 有稳定解。
+- 不依赖极端碰撞角度。
+- 不依赖随机初始速度。
+- Android 上重复运行结果基本一致。
