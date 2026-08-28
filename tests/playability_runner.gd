@@ -17,7 +17,7 @@ func _run() -> void:
     await process_frame
     Engine.time_scale = 6.0
     for index in range(game.levels.size()):
-        game._load_level(index, false)
+        game._load_level(index)
         game.run_timeout = 4.0
         game.toggle_run()
         var frames := 0
@@ -28,6 +28,8 @@ func _run() -> void:
             var pos := Vector2.ZERO
             if game.runtime != null and game.runtime.ball != null: pos = game.runtime.ball.global_position
             failures.append("level %02d default layout did not reach SUCCESS (state=%s, frames=%d, elapsed=%.2f, ball=%s)" % [index + 1, str(game.state), frames, game.elapsed, str(pos)])
+        else:
+            await process_frame
     Engine.time_scale = 1.0
     game.queue_free()
     await process_frame
