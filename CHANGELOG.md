@@ -11,6 +11,7 @@
 - 新增 headless 自动化测试、主场景 runtime smoke 和 32 关默认可解性回归。
 - Android CI 只有在全部测试和 APK 导出成功后才创建 Release。
 - 增加项目 SVG 图标。
+- GitHub Release 作为唯一公共 APK 分发入口，移除不稳定的临时 Litterbox 上传。
 
 ### 回归修复
 - 修复组件与 Godot 原生物理类型的静态转换问题。
@@ -48,6 +49,14 @@
 - Android ARM64 APK 导出和签名验证通过。
 - SHA-256：`b23c41f649bfc89a3e9bc91c64ab360d2a016ff9fd98064b24150814ac4ea0d0`
 - GitHub Release：`tiny-machine-p3-40`。
+
+### Run 41
+- 移除临时 Litterbox 分发步骤，降低 CI 外部依赖。
+- 32/32 官方默认布局实际 headless 物理回归通过。
+- 自动化脚本、数据、runtime smoke 全部通过。
+- Android ARM64 APK 导出和签名验证通过。
+- SHA-256：`14604768874c1bd87ea87db8784b64024bbd7a48394fbb351eada1963e0f38ef`
+- GitHub Release：`tiny-machine-p3-41`。
 
 ## P2
 - 关卡从硬编码布局迁移到 `levels.json` + `LevelData`。
