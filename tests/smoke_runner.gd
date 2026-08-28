@@ -17,12 +17,16 @@ func _run_smoke() -> void:
         await process_frame
         if game.runtime == null: failures.append("LevelRuntime was not initialized")
         if game.levels.size() < 32: failures.append("main loaded fewer than 32 levels")
-        if game.runtime == null or game.runtime.ball == null: failures.append("first level has no runtime ball")
+        if game.runtime == null or game.runtime.ball == null: failures.append("first level has no runtime launch ball")
         if game.runtime == null or game.runtime.goal == null: failures.append("first level has no goal")
         if game.state != 0: failures.append("game did not start in EDITING state")
+        if game.runtime != null and game.runtime.components.size() != 0: failures.append("first level is not empty at startup")
         if failures.is_empty():
+            game._add_component("slope")
+            await process_frame
+            if game.runtime.components.size() != 1: failures.append("parts-bin add did not create a component")
             game.toggle_run()
-            if game.state != 1: failures.append("toggle_run did not enter RUNNING")
+            if game.state != 1: failures.append("toggle_run did not enter RUNNING after adding a part")
             else:
                 game._on_goal_body_entered(game.runtime.ball)
                 if game.state != 3: failures.append("goal entry did not enter SUCCESS")
