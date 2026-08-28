@@ -23,14 +23,16 @@ func setup(kind: String, owner: Node, editor_node: Node, pos: Vector2, rot: floa
     rotation = rot
     start_position = pos
     start_rotation = rot
-    var collider := self as CollisionObject2D
-    if collider:
+    var node: Node = self
+    if node is CollisionObject2D:
+        var collider: CollisionObject2D = node
         collider.input_pickable = true
     queue_redraw()
 
 func _ready() -> void:
-    var collider := self as CollisionObject2D
-    if collider:
+    var node: Node = self
+    if node is CollisionObject2D:
+        var collider: CollisionObject2D = node
         collider.input_pickable = true
     queue_redraw()
 
@@ -38,8 +40,7 @@ func _is_editing() -> bool:
     return editor != null and editor.has_method("is_editing") and editor.is_editing()
 
 func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
-    if not _is_editing():
-        return
+    if not _is_editing(): return
     if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
         if event.pressed:
             dragging = true
@@ -58,8 +59,7 @@ func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> vo
             editor.on_piece_released(self)
 
 func _input(event: InputEvent) -> void:
-    if not dragging or not _is_editing():
-        return
+    if not dragging or not _is_editing(): return
     if event is InputEventMouseMotion:
         editor.drag_piece_to(self, get_global_mouse_position() + drag_offset)
     elif event is InputEventScreenDrag:
@@ -67,11 +67,11 @@ func _input(event: InputEvent) -> void:
 
 func set_simulation(enabled: bool) -> void:
     simulation_enabled = enabled
-    var rb := self as RigidBody2D
-    if rb:
+    var node: Node = self
+    if node is RigidBody2D:
+        var rb: RigidBody2D = node
         rb.freeze = not enabled
-        if enabled:
-            rb.sleeping = false
+        if enabled: rb.sleeping = false
 
 func reset_runtime() -> void:
     global_position = start_position
@@ -82,8 +82,9 @@ func reset_runtime() -> void:
     cut = false
     spent = false
     dragging = false
-    var rb := self as RigidBody2D
-    if rb:
+    var node: Node = self
+    if node is RigidBody2D:
+        var rb: RigidBody2D = node
         rb.freeze = true
         rb.linear_velocity = Vector2.ZERO
         rb.angular_velocity = 0.0
@@ -91,8 +92,9 @@ func reset_runtime() -> void:
     queue_redraw()
 
 func apply_impulse(impulse: Vector2) -> void:
-    var rb := self as RigidBody2D
-    if rb:
+    var node: Node = self
+    if node is RigidBody2D:
+        var rb: RigidBody2D = node
         rb.apply_central_impulse(impulse)
 
 func cut_rope() -> void:
@@ -102,10 +104,10 @@ func cut_rope() -> void:
         queue_redraw()
 
 func _physics_process(delta: float) -> void:
-    if not simulation_enabled:
-        return
-    var rb := self as RigidBody2D
-    if piece_type == "balloon" and rb:
+    if not simulation_enabled: return
+    var node: Node = self
+    if piece_type == "balloon" and node is RigidBody2D:
+        var rb: RigidBody2D = node
         rb.apply_central_force(Vector2(0, -95.0))
     elif piece_type == "gear" and active:
         rotation += spin_speed * delta
@@ -148,8 +150,7 @@ func _draw() -> void:
             draw_line(Vector2(-34, 11), Vector2(34, -11), Color("#d9e3ee"), 7, true)
             draw_circle(Vector2(-32, -14), 12, Color("#e17b6c"), false, 4)
             draw_circle(Vector2(-32, 14), 12, Color("#e17b6c"), false, 4)
-            if triggered:
-                draw_arc(Vector2.ZERO, 50, -0.4, 0.4, 20, Color("#ff6f61"), 4)
+            if triggered: draw_arc(Vector2.ZERO, 50, -0.4, 0.4, 20, Color("#ff6f61"), 4)
         "gear":
             var gear_color := Color("#4da7ff") if active else Color("#6f91b6")
             draw_circle(Vector2.ZERO, 38, gear_color)

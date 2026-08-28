@@ -77,7 +77,6 @@ func _create_boundaries() -> void:
     shape.shape = rect
     floor.add_child(shape)
     add_child(floor)
-
     var left := StaticBody2D.new()
     left.position = Vector2(8, 420)
     var left_shape := CollisionShape2D.new()
@@ -86,7 +85,6 @@ func _create_boundaries() -> void:
     left_shape.shape = left_rect
     left.add_child(left_shape)
     add_child(left)
-
     var right := StaticBody2D.new()
     right.position = Vector2(1272, 420)
     var right_shape := CollisionShape2D.new()
@@ -122,25 +120,21 @@ func _build_ui() -> void:
     var layer := CanvasLayer.new()
     layer.name = "UI"
     add_child(layer)
-
     var top := Panel.new()
     top.size = Vector2(1280, 150)
     top.add_theme_stylebox_override("panel", _make_style(Color("#090e15"), Color("#243247"), 0, 0))
     layer.add_child(top)
-
     title_label = Label.new()
     title_label.position = Vector2(22, 8)
     title_label.add_theme_font_size_override("font_size", 23)
     title_label.add_theme_color_override("font_color", Color("#f5f8fc"))
     top.add_child(title_label)
-
     status_label = Label.new()
     status_label.position = Vector2(285, 12)
     status_label.size = Vector2(960, 32)
     status_label.add_theme_font_size_override("font_size", 14)
     status_label.add_theme_color_override("font_color", Color("#b9c7d8"))
     top.add_child(status_label)
-
     level_option = OptionButton.new()
     level_option.position = Vector2(20, 48)
     level_option.size = Vector2(245, 44)
@@ -149,7 +143,6 @@ func _build_ui() -> void:
     level_option.add_theme_color_override("font_color", Color("#f5f8fc"))
     level_option.item_selected.connect(_on_level_selected)
     top.add_child(level_option)
-
     var palette := [["小球","ball"],["木板","board"],["斜坡","slope"],["弹簧","spring"],["绳子","rope"],["剪刀","scissors"],["齿轮","gear"],["开关","switch"],["气球","balloon"],["磁铁","magnet"],["炸弹","bomb"]]
     var x := 275.0
     for item in palette:
@@ -163,7 +156,6 @@ func _build_ui() -> void:
         top.add_child(button)
         editor_buttons.append(button)
         x += 82.0
-
     run_button = Button.new()
     run_button.text = "▶ 运行"
     run_button.position = Vector2(1055, 48)
@@ -172,7 +164,6 @@ func _build_ui() -> void:
     _style_button(run_button, true)
     run_button.pressed.connect(toggle_run)
     top.add_child(run_button)
-
     var reset_button := Button.new()
     reset_button.text = "↻ 重置"
     reset_button.position = Vector2(1168, 48)
@@ -181,7 +172,6 @@ func _build_ui() -> void:
     _style_button(reset_button)
     reset_button.pressed.connect(retry_level)
     top.add_child(reset_button)
-
     var tools := [["多选","multi"],["旋转","rotate"],["删除","delete"],["撤销","undo"],["重做","redo"],["吸附","snap"],["保存","save"],["加载","load"],["验证","validate"],["音乐","music"]]
     x = 20.0
     for item in tools:
@@ -198,7 +188,6 @@ func _build_ui() -> void:
         if item[1] == "snap": snap_button = b
         if item[1] == "music": music_button = b
         x += 106.0
-
     next_button = Button.new()
     next_button.text = "下一关 →"
     next_button.position = Vector2(1080, 101)
@@ -207,21 +196,18 @@ func _build_ui() -> void:
     next_button.visible = false
     next_button.pressed.connect(next_level)
     top.add_child(next_button)
-
     tutorial_label = Label.new()
     tutorial_label.position = Vector2(20, 698)
     tutorial_label.size = Vector2(1220, 20)
     tutorial_label.add_theme_font_size_override("font_size", 13)
     tutorial_label.add_theme_color_override("font_color", Color("#b9c7d8"))
     layer.add_child(tutorial_label)
-
     success_panel = Panel.new()
     success_panel.position = Vector2(370, 280)
     success_panel.size = Vector2(540, 170)
     success_panel.add_theme_stylebox_override("panel", _make_style(Color("#0c1721f0"), Color("#65df93"), 18, 2))
     success_panel.visible = false
     layer.add_child(success_panel)
-
     success_label = Label.new()
     success_label.position = Vector2(25, 25)
     success_label.size = Vector2(490, 70)
@@ -230,7 +216,6 @@ func _build_ui() -> void:
     success_label.add_theme_font_size_override("font_size", 25)
     success_label.add_theme_color_override("font_color", Color("#dfffea"))
     success_panel.add_child(success_label)
-
     retry_button = Button.new()
     retry_button.text = "再试一次"
     retry_button.position = Vector2(125, 112)
@@ -238,7 +223,6 @@ func _build_ui() -> void:
     _style_button(retry_button)
     retry_button.pressed.connect(retry_level)
     success_panel.add_child(retry_button)
-
     var overlay_next := Button.new()
     overlay_next.text = "下一关"
     overlay_next.position = Vector2(295, 112)
@@ -254,8 +238,7 @@ func _refresh_level_options() -> void:
     level_option.selected = current_level_index
 
 func _load_level(index: int, _push_history := false) -> void:
-    if levels.is_empty():
-        return
+    if levels.is_empty(): return
     index = clampi(index, 0, levels.size() - 1)
     current_level_index = index
     current_level = levels[index].duplicate_level()
@@ -281,13 +264,7 @@ func _update_tutorial() -> void:
         tutorial_label.text = ""
         return
     if current_level.tutorial:
-        var tips := {
-            1:"教程 1：拖动组件，让小球连续滚向绿色目标。",
-            2:"教程 2：旋转、吸附可以快速整理布局。",
-            3:"教程 3：开启多选，一次移动多个组件。",
-            4:"教程 4：用撤销/重做进行快速试错。",
-            5:"教程 5：运行后进入目标区会立即终止模拟。"
-        }
+        var tips := {1:"教程 1：拖动组件，让小球连续滚向绿色目标。",2:"教程 2：旋转、吸附可以快速整理布局。",3:"教程 3：开启多选，一次移动多个组件。",4:"教程 4：用撤销/重做进行快速试错。",5:"教程 5：运行后进入目标区会立即终止模拟。"}
         tutorial_label.text = tips.get(current_level.id, "教程：先观察路径，再点击运行。")
     else:
         tutorial_label.text = "难度 ★%d · 目标：让小球进入绿色目标区 · 超时或掉出场地视为失败" % current_level.difficulty
@@ -295,22 +272,19 @@ func _update_tutorial() -> void:
 func _update_controls() -> void:
     var editing := is_editing()
     level_option.disabled = not editing
-    for b in editor_buttons:
-        b.disabled = not editing
+    for b in editor_buttons: b.disabled = not editing
     run_button.disabled = state in [GameState.SUCCESS, GameState.FAIL]
     if multi_button: multi_button.text = "多选 ✓" if multi_select else "多选"
     if snap_button: snap_button.text = "吸附 ✓" if snap_enabled else "吸附"
     if music_button: music_button.text = "音乐 ✓" if audio.music_enabled else "音乐"
 
 func _tool_pressed(tool: String) -> void:
-    if not is_editing():
-        return
+    if not is_editing(): return
     audio.click()
     match tool:
         "multi":
             multi_select = not multi_select
-            if not multi_select and selected.size() > 1:
-                selected = [selected[0]]
+            if not multi_select and selected.size() > 1: selected = [selected[0]]
         "rotate": _rotate_selected()
         "delete": _delete_selected()
         "undo": _undo()
@@ -335,8 +309,7 @@ func on_piece_pressed(piece: MachineComponent) -> void:
         selected = [piece]
     drag_before_layout = runtime.capture_layout()
     drag_start_positions.clear()
-    for item in selected:
-        drag_start_positions[item.get_instance_id()] = item.global_position
+    for item in selected: drag_start_positions[item.get_instance_id()] = item.global_position
     drag_primary_start = piece.global_position
     _update_selection_visuals()
 
@@ -352,7 +325,7 @@ func on_piece_released(_piece: MachineComponent) -> void:
     _sync_working_level()
     _validate_current(false)
 
-func drag_piece_to(piece: MachineComponent, target: Vector2) -> void:
+func drag_piece_to(_piece: MachineComponent, target: Vector2) -> void:
     if not is_editing() or selected.is_empty(): return
     var delta := target - drag_primary_start
     for item in selected:
@@ -366,8 +339,7 @@ func drag_piece_to(piece: MachineComponent, target: Vector2) -> void:
     queue_redraw()
 
 func _sync_working_level() -> void:
-    if current_level != null and runtime != null:
-        current_level.pieces = runtime.capture_layout()
+    if current_level != null and runtime != null: current_level.pieces = runtime.capture_layout()
 
 func _snap(pos: Vector2) -> Vector2:
     return Vector2(round(pos.x / GRID) * GRID, round(pos.y / GRID) * GRID)
@@ -401,8 +373,7 @@ func _delete_selected() -> void:
     _validate_current(false)
 
 func _push_undo_snapshot() -> void:
-    var layout := runtime.capture_layout()
-    history_undo.append(layout)
+    history_undo.append(runtime.capture_layout())
     if history_undo.size() > MAX_HISTORY: history_undo.pop_front()
     history_redo.clear()
 
@@ -443,8 +414,7 @@ func _add_component(kind: String) -> void:
     queue_redraw()
 
 func _validate_current(show_message := true) -> Dictionary:
-    if current_level == null:
-        return {"ok":false,"errors":["没有当前关卡"],"warnings":[]}
+    if current_level == null: return {"ok":false,"errors":["没有当前关卡"],"warnings":[]}
     var data := runtime.capture_level()
     var result := LevelValidator.validate(data)
     if show_message:
@@ -546,8 +516,9 @@ func _finish_success() -> void:
     state = GameState.SUCCESS
     runtime.set_simulation(false)
     for piece in runtime.components:
-        var rb := piece as RigidBody2D
-        if rb:
+        var node: Node = piece
+        if node is RigidBody2D:
+            var rb: RigidBody2D = node
             rb.linear_velocity = Vector2.ZERO
             rb.angular_velocity = 0.0
     success_panel.visible = true
@@ -637,12 +608,9 @@ func _draw() -> void:
     draw_rect(Rect2(0, 0, 1280, 720), Color("#0e1218"))
     draw_rect(BOARD, Color("#151c25"), true)
     draw_rect(BOARD, Color("#2c3d52"), false, 2)
-    for x in range(40, 1260, 40):
-        draw_line(Vector2(x, 158), Vector2(x, 683), Color(1,1,1,0.035), 1)
-    for y in range(180, 700, 40):
-        draw_line(Vector2(20,y), Vector2(1260,y), Color(1,1,1,0.035), 1)
+    for x in range(40, 1260, 40): draw_line(Vector2(x, 158), Vector2(x, 683), Color(1,1,1,0.035), 1)
+    for y in range(180, 700, 40): draw_line(Vector2(20,y), Vector2(1260,y), Color(1,1,1,0.035), 1)
     draw_line(Vector2(20, 683), Vector2(1260, 683), Color("#41536b"), 2)
-
     if runtime != null and runtime.goal != null:
         var goal_pos := runtime.goal.position
         var pulse := 1.0 + sin(goal_pulse * 4.0) * 0.06
@@ -651,9 +619,6 @@ func _draw() -> void:
         draw_arc(goal_pos, 48.0 * pulse, 0, TAU, 48, goal_color, 4.0)
         draw_circle(goal_pos, 18.0, Color(0.25,0.85,0.45,0.22))
         draw_string(ThemeDB.fallback_font, goal_pos + Vector2(-36, 75), "TARGET", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("#72d8ff"))
-
     if snap_enabled and state == GameState.EDITING:
-        for x in range(40, 1260, int(GRID)):
-            draw_line(Vector2(x,158), Vector2(x,683), Color(0.3,0.6,0.9,0.025), 1)
-        for y in range(180, 700, int(GRID)):
-            draw_line(Vector2(20,y), Vector2(1260,y), Color(0.3,0.6,0.9,0.025), 1)
+        for x in range(40, 1260, int(GRID)): draw_line(Vector2(x,158), Vector2(x,683), Color(0.3,0.6,0.9,0.025), 1)
+        for y in range(180, 700, int(GRID)): draw_line(Vector2(20,y), Vector2(1260,y), Color(0.3,0.6,0.9,0.025), 1)

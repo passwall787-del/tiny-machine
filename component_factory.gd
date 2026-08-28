@@ -28,9 +28,10 @@ static func create_component(kind: String, data: Dictionary, owner: Node, editor
         return null
     piece.setup(kind, owner, editor, Vector2(float(data.get("x", 600)), float(data.get("y", 330))), float(data.get("r", 0)))
 
-    var collider := piece as CollisionObject2D
-    if collider == null:
+    var node: Node = piece
+    if not node is CollisionObject2D:
         return null
+    var collider: CollisionObject2D = node
     var solid := kind in ["ball", "balloon", "board", "slope", "gear"]
     if solid:
         collider.collision_layer = 1

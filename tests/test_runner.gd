@@ -3,6 +3,7 @@ extends SceneTree
 var failures: Array[String] = []
 
 func _initialize() -> void:
+    _test_scripts_parse()
     _test_level_catalog()
     _test_level_serialization()
     _test_validator()
@@ -14,6 +15,13 @@ func _initialize() -> void:
             push_error(failure)
         print("Tiny Machine automated tests: FAIL (%d)" % failures.size())
         quit(1)
+
+func _test_scripts_parse() -> void:
+    var scripts := ["main.gd","machine_component.gd","component_factory.gd","level_runtime.gd","level_data.gd","level_validator.gd","audio_manager.gd"]
+    for path in scripts:
+        var resource = load("res://" + path)
+        if resource == null or not resource is GDScript:
+            failures.append("script failed to parse/load: %s" % path)
 
 func _test_level_catalog() -> void:
     var path := "res://levels.json"
