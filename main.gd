@@ -24,6 +24,7 @@ var snap_enabled := true
 var elapsed := 0.0
 var run_timeout := 18.0
 var goal_pulse := 0.0
+var success_scheduled := false
 var status_label: Label
 var title_label: Label
 var level_option: OptionButton
@@ -247,6 +248,7 @@ func _load_level(index: int, _push_history := false) -> void:
     history_redo.clear()
     state = GameState.EDITING
     elapsed = 0.0
+    success_scheduled = false
     success_panel.visible = false
     next_button.visible = false
     retry_button.text = "再试一次"
@@ -455,6 +457,7 @@ func _load_custom_level() -> void:
     runtime.load_level(current_level)
     selected.clear()
     state = GameState.EDITING
+    success_scheduled = false
     success_panel.visible = false
     _update_tutorial()
     title_label.text = "TINY MACHINE  ·  自制关卡"
@@ -470,6 +473,7 @@ func toggle_run() -> void:
             return
         state = GameState.RUNNING
         elapsed = 0.0
+        success_scheduled = false
         success_panel.visible = false
         runtime.set_simulation(true)
         run_button.text = "⏸ 暂停"
@@ -492,6 +496,7 @@ func retry_level() -> void:
     selected.clear()
     state = GameState.EDITING
     elapsed = 0.0
+    success_scheduled = false
     success_panel.visible = false
     next_button.visible = false
     retry_button.text = "再试一次"
@@ -511,11 +516,13 @@ func _on_level_selected(index: int) -> void:
 
 func _on_goal_body_entered(body: Node2D) -> void:
     if state != GameState.RUNNING or runtime == null or body != runtime.ball: return
-    _finish_success()
-
-func _finish_success() -> void:
-    if state == GameState.SUCCESS: return
+    if success_scheduled: return
+    success_scheduled = true
     state = GameState.SUCCESS
+    call_deferred("_finalize_success")
+
+func _finalize_success() -> void:
+    if runtime == null: return
     runtime.set_simulation(false)
     for piece in runtime.components:
         var node: Node = piece
@@ -563,6 +570,8 @@ func _process(delta: float) -> void:
         elapsed += delta
         if runtime.ball == null or not is_instance_valid(runtime.ball):
             _finish_fail("缺少小球")
+        elif runtime.goal != null and runtime.ball.global_position.distance_to(runtime.goal.position) <= runtime.level.goal_radius + 24.0:
+            _on_goal_body_entered(runtime.ball)
         elif runtime.ball.global_position.y > 710.0:
             _finish_fail("小球掉出场地")
         elif elapsed > run_timeout:
