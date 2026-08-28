@@ -29,7 +29,7 @@ func _ready() -> void:
     queue_redraw()
 
 func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
-    if main == null or not main.is_in_group("game_root") and main.game_state != main.GameState.EDITING:
+    if main == null or not main.is_editing():
         return
     if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
         if event.pressed:
@@ -47,7 +47,7 @@ func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> vo
             dragging = false
 
 func _input(event: InputEvent) -> void:
-    if not dragging or main == null or main.game_state != main.GameState.EDITING:
+    if not dragging or main == null or not main.is_editing():
         return
     if event is InputEventMouseMotion:
         global_position = get_global_mouse_position() + drag_offset
@@ -62,7 +62,8 @@ func _physics_process(delta: float) -> void:
     if piece_type == "balloon" and self is RigidBody2D:
         (self as RigidBody2D).apply_central_force(Vector2(0, -95.0))
     elif piece_type == "gear":
-        rotation += spin_speed * delta if active else 0.0
+        if active:
+            rotation += spin_speed * delta
         queue_redraw()
 
 func reset_piece() -> void:
@@ -89,7 +90,7 @@ func cut_rope() -> void:
     queue_redraw()
 
 func _draw() -> void:
-    var selected = main != null and main.selected_piece == self and main.game_state == main.GameState.EDITING
+    var selected = main != null and main.selected_piece == self and main.is_editing()
     var outline_width = 5.0 if selected else 3.0
 
     if piece_type == "ball":
