@@ -1,0 +1,80 @@
+name: Tiny Machine P0 Android
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "project.godot"
+      - "main.gd"
+      - "main.tscn"
+      - "piece.gd"
+      - "export_presets.cfg"
+      - ".github/workflows/android-p0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Android ARM64 APK
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build with Godot CI Docker image
+        run: |
+          docker pull barichello/godot-ci:4.7.2
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -w /workspace \
+            barichello/godot-ci:4.7.2 \
+            bash -lc '
+              set -e
+              mkdir -p /root/.config/godot
+              if [ -d /root/.local/share/godot/export_templates ]; then
+                mkdir -p /root/.local/share/godot/export_templates
+              fi
+              godot --headless --editor --import --quit
+              mkdir -p build/android
+              godot --headless --verbose --export-debug "Android" build/android/TinyMachineP0.apk
+              test -s build/android/TinyMachineP0.apk
+              sha256sum build/android/TinyMachineP0.apk
+              ls -lh build/android/TinyMachineP0.apk
+            '
+
+      - name: Upload to temporary Litterbox
+        id: litterbox
+        continue-on-error: true
+        run: |
+          URL=$(curl -f -sS --retry 3 --retry-delay 2 \
+            -F "reqtype=fileupload" \
+            -F "time=1h" \
+            -F "fileToUpload=@build/android/TinyMachineP0.apk;type=application/vnd.android.package-archive" \
+            https://litterbox.catbox.moe/resources/internals/api.php)
+          test -n "$URL"
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$URL" > temporary-apk-url.txt
+          echo "Temporary download URL: $URL"
+
+      - name: Save temporary URL in repository
+        if: steps.litterbox.outputs.url != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add temporary-apk-url.txt
+          git commit -m "ci: publish temporary APK URL [skip ci]"
+          git push origin HEAD:main
+
+      - name: Publish public GitHub release fallback
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: tiny-machine-p0-${{ github.run_number }}
+          name: Tiny Machine P0 ${{ github.run_number }}
+          prerelease: true
+          generate_release_notes: false
+          body: |
+            Android ARM64 debug build for testing.
+            Temporary Litterbox link is written to temporary-apk-url.txt when available.
+          files: build/android/TinyMachineP0.apk
