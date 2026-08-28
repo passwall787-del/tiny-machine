@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## P3.1 · 施工流程与视觉重构
+- 官方关卡改为“空施工区”启动。
+- 小球独立作为 START 发射源，不占用零件库存，也不能被玩家拖动/删除。
+- 新增有限数量零件仓库，实时显示剩余库存。
+- 点击零件仓库添加组件，添加后自动选中并可立即拖动。
+- 没有放置零件时禁止发射小球，明确建立“取零件 → 摆放 → 发射”的施工流程。
+- 重新施工会清空当前布局。
+- 重做移动端施工台布局：顶部控制区 + 中央施工区 + 底部零件仓库。
+- 增加零件卡片图标、数量徽标、状态和高对比度按钮。
+- 重做 Board / Slope / Spring / Rope / Scissors / Gear / Switch / Balloon / Magnet / Bomb / Ball 的程序化矢量视觉。
+- 增加施工区网格、边框、铆钉、START / TARGET 等视觉提示。
+- playability runner 改为通过隐藏测试解法验证空关卡，不再依赖玩家启动时预置的零件。
+- runtime smoke 新增“空关卡 → 添加零件 → 发射 → SUCCESS”回归。
+- 同步更新 UI_UX / GAMEPLAY / COMPONENTS / PROJECT_STATUS 文档。
+
 ## P3
 - 新增 32 个官方关卡数据。
 - 新增教程 1~5 关和 1~8 星难度曲线。
@@ -27,28 +42,6 @@
 - 修复 playability runner 释放场景后错误显示 0 关的问题。
 - 修复 playability runner 日志修复中的 GDScript 参数/类型解析错误。
 - 修复目标数据文件与运行时默认目标坐标不一致的问题。
-
-### Run 37
-- 32/32 官方默认布局通过实际 headless 物理回归。
-- Android ARM64 APK 导出、签名验证通过。
-- SHA-256：`9bbb8931ab7d6ac2b8fa275ba6331fe8621ea9e40dfae6545c402a2aef529334`
-
-### Run 38
-- 再次通过 32/32 官方默认布局实际 headless 物理回归。
-- Android ARM64 APK 导出、签名验证通过。
-- SHA-256：`caa81c9d375536393ca593011075f149087f0194d2feb1bec704f8494b69b0c0`
-- 临时 Litterbox 上传出现 HTTP 500，但该步骤为可选失败，GitHub Release 正常生成。
-
-### Run 39
-- playability runner 日志修复首次提交触发 GDScript 参数/类型解析错误，未发布 APK。
-- 随后立即修复并由 Run 40 回归。
-
-### Run 40
-- 32/32 官方默认布局实际 headless 物理回归通过。
-- 自动化脚本、数据、runtime smoke 全部通过。
-- Android ARM64 APK 导出和签名验证通过。
-- SHA-256：`b23c41f649bfc89a3e9bc91c64ab360d2a016ff9fd98064b24150814ac4ea0d0`
-- GitHub Release：`tiny-machine-p3-40`。
 
 ### Run 41
 - 移除临时 Litterbox 分发步骤，降低 CI 外部依赖。
