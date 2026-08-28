@@ -231,13 +231,13 @@ func _create_piece(kind: String, pos: Vector2, rot: float = 0.0) -> MachinePiece
         body.set("continuous_cd", RigidBody2D.CCD_MODE_CAST_SHAPE)
     elif kind == "gear": body = AnimatableBody2D.new()
     else: body = StaticBody2D.new()
+    var collider := body as CollisionObject2D
+    if collider == null:
+        push_error("MachinePiece factory requires CollisionObject2D")
+        return null
     body.set_script(load("res://piece.gd"))
     var piece := body as MachinePiece
     piece.setup(kind, self, pos, rot)
-    var collider := piece as CollisionObject2D
-    if collider == null:
-        push_error("MachinePiece must wrap a CollisionObject2D")
-        return piece
     var solid := kind == "ball" or kind == "balloon" or kind == "board" or kind == "slope" or kind == "gear"
     if solid:
         collider.collision_layer = 1
@@ -302,6 +302,7 @@ func _add_piece(kind: String) -> void:
     elif kind == "switch": pos = Vector2(700, 350)
     elif kind == "balloon": pos = Vector2(700, 280)
     var p = _create_piece(kind, pos)
+    if p == null: return
     if kind == "ball": ball = p
     select_piece(p)
     status_label.text = "已添加 %s · 拖动它到合适位置" % kind
