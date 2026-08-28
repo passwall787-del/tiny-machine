@@ -114,7 +114,9 @@ func _physics_process(delta: float) -> void:
         queue_redraw()
 
 func _draw() -> void:
-    var selected := editor != null and editor.has_method("is_piece_selected") and editor.is_piece_selected(self) and _is_editing()
+    var selected: bool = false
+    if editor != null and editor.has_method("is_piece_selected"):
+        selected = bool(editor.is_piece_selected(self)) and _is_editing()
     var outline := 5.0 if selected else 3.0
     match piece_type:
         "ball":
