@@ -8,7 +8,7 @@ var tutorial: bool = false
 var pattern: String = "basic"
 var slope_count: int = 2
 var start_position := Vector2(150, 150)
-var goal_position := Vector2(1120, 500)
+var goal_position := Vector2(1080, 500)
 var goal_radius: float = 48.0
 var pieces: Array[Dictionary] = []
 var solution_pieces: Array[Dictionary] = []
@@ -26,7 +26,7 @@ static func from_dict(raw: Dictionary) -> LevelData:
     var start: Dictionary = raw.get("start", {})
     level.start_position = Vector2(float(start.get("x", 150)), float(start.get("y", 150)))
     var goal: Dictionary = raw.get("goal", {})
-    level.goal_position = Vector2(float(goal.get("x", 1120)), float(goal.get("y", 500)))
+    level.goal_position = Vector2(float(goal.get("x", 1080)), float(goal.get("y", 500)))
     level.goal_radius = float(goal.get("radius", 48))
 
     var raw_inventory: Dictionary = raw.get("inventory", {})
@@ -87,13 +87,13 @@ func generate_solution() -> void:
 
     var last_x := 200.0 + 150.0 * float(count - 1)
     var last_y := 220.0 + 55.0 * float(count - 1)
+    var board2_x := 730.0 if count == 2 else 850.0
     var board_positions := [
-        Vector2(last_x + 150.0, clampf(last_y + 90.0, 340.0, 500.0)),
-        Vector2(last_x + 360.0, clampf(last_y + 140.0, 400.0, 500.0)),
-        Vector2(last_x + 570.0, 500.0)
+        Vector2(last_x + 150.0, clampf(last_y + 90.0, 340.0, 470.0)),
+        Vector2(board2_x, clampf(last_y + 140.0, 400.0, 500.0)),
+        Vector2(1030.0, 500.0)
     ]
-    var boards_to_use := 3 if count <= 3 else 2
-    if count >= 5: boards_to_use = 2
+    var boards_to_use := 3 if count <= 4 else 2
     for i in range(boards_to_use):
         solution_pieces.append({"type":"board","x":board_positions[i].x,"y":board_positions[i].y,"r":0.02})
 
