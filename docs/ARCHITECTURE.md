@@ -1,209 +1,140 @@
-# 架构设计
+# 架构说明
 
-## 1. 当前 P0 架构
+## 1. 当前运行时
 
-当前原型采用极简结构：
-
-```text
-Main Node2D
-├── main.gd
-│   ├── UI 构建
-│   ├── Level 1 构建
-│   ├── Physics World 边界
-│   ├── Run/Pause/Reset
-│   └── Goal 判定
-│
-└── MachinePiece
-    └── piece.gd
-        ├── 拖动
-        ├── 初始状态
-        ├── 重置
-        └── 绘制
-```
-
-`main.gd` 目前故意承担较多职责，以便快速验证 P0。
-
-## 2. 当前核心对象
-
-### Main
-
-职责：
-
-- 创建 UI
-- 创建关卡
-- 保存 `pieces`
-- 管理运行状态
-- 管理目标
-- 管理选中组件
-- 创建边界
-
-不应在长期版本继续承担所有职责。
-
-### MachinePiece
-
-当前是所有组件的基础类型，通过 `piece_type` 字符串区分 `ball`、`board`、`slope`。
-
-长期目标：改成组件类型/场景注册机制，避免大量 `if kind == ...`。
-
-## 3. 推荐 P1 架构
+当前 P1 仍采用轻量原型架构：
 
 ```text
-GameRoot
-├── GameState
-├── LevelRuntime
-│   ├── LevelDefinition
-│   ├── ComponentFactory
-│   └── GoalSystem
-│
-├── PhysicsWorld
-│   ├── Boundaries
-│   └── MachineComponents
-│
-├── InputController
-├── UI
-│   ├── TopBar
-│   ├── Palette
-│   └── StatusPanel
-│
-└── Audio
+main.tscn
+   │
+   └── main.gd
+        ├── UI
+        ├── Level Runtime
+        ├── GameState
+        ├── Target / Goal
+        ├── Physics orchestration
+        └── MachinePiece[]
+              └── piece.gd
 ```
 
-## 4. 数据层
+## 2. GameState
 
-P1 开始应该把“关卡定义”和“运行实例”分开：
+正式状态：
 
 ```text
-LevelDefinition
-  ├── id
-  ├── title
-  ├── world_size
-  ├── available_components
-  ├── initial_components
-  └── goals
-
-LevelRuntime
-  ├── instantiated components
-  ├── current state
-  ├── elapsed time
-  └── result
+EDITING
+RUNNING
+PAUSED
+SUCCESS
 ```
 
-## 5. 组件接口
-
-建议统一接口：
-
-```gdscript
-class_name MachineComponent
-
-func configure(data: Dictionary) -> void:
-    pass
-
-func capture_initial_state() -> void:
-    pass
-
-func reset_state() -> void:
-    pass
-
-func on_simulation_start() -> void:
-    pass
-
-func on_simulation_stop() -> void:
-    pass
-```
-
-具体组件只实现自己的特殊行为。
-
-## 6. 目标系统
-
-目标不要写死为“小球进入圆圈”。应抽象为：
+目标进入是终端事件：
 
 ```text
-Goal
-├── BallEnterAreaGoal
-├── ObjectReachPositionGoal
-├── SwitchActivatedGoal
-├── MultiConditionGoal
-└── TimedGoal
-```
-
-未来可使用组合条件：
-
-```text
-AND
-├── BallEnterArea
-└── SwitchActivated
-```
-
-## 7. 输入系统
-
-输入层应把鼠标和触摸统一成逻辑事件：
-
-```text
-Mouse / Touch
+Target.body_entered
       ↓
-PointerEvent
+_validate_goal()
       ↓
-Selection
+SUCCESS
       ↓
-DragController
-      ↓
-Component
+freeze bodies + stop components + lock UI
 ```
 
-不要让组件业务逻辑依赖 Android 具体输入 API。
+## 3. 组件
 
-## 8. UI 系统
+P1 组件仍使用 `MachinePiece` 统一脚本，通过 `piece_type` 分发行为。
 
-P0 当前用 GDScript 动态创建 UI。P1 建议拆成 `.tscn`：
+当前类型：
 
 ```text
-ui/
-├── hud.tscn
-├── palette.tscn
-├── pause_menu.tscn
-└── level_result.tscn
+ball
+board
+slope
+spring
+rope
+scissors
+gear
+switch
+balloon
 ```
 
-## 9. 数据流
+## 4. 物理层
+
+### Solid layer
+
+- Ball
+- Board
+- Slope
+- Gear
+- Balloon
+
+使用 layer 1 / mask 1。
+
+### Sensor/edit layer
+
+- Spring
+- Rope
+- Scissors
+- Switch
+
+使用独立编辑/检测层，避免无意阻挡小球。
+
+## 5. 运行时职责
+
+`main.gd`：
+
+- 创建关卡。
+- 管理 GameState。
+- 管理目标判定。
+- 管理暂停/恢复/重置。
+- 编排 P1 机关之间的触发关系。
+
+`piece.gd`：
+
+- 拖动。
+- 组件状态。
+- 组件绘制。
+- Balloon 上浮。
+- Gear 旋转。
+- Rope cut。
+- RigidBody2D 冲量辅助。
+
+## 6. P1 的临时取舍
+
+当前没有立即拆成大量脚本，因为需要先验证物理手感和机关规则。
+
+但是新增 P1 组件不能继续把大量独立业务塞进 `main.gd`。进入 P2 前应拆分为：
 
 ```text
-Level JSON
-   ↓
-LevelLoader
-   ↓
-ComponentFactory
-   ↓
-PhysicsWorld
-   ↓
-Simulation
-   ↓
-GoalSystem
-   ↓
 GameState
-   ↓
-UI
+LevelRuntime
+GoalSystem
+ComponentFactory
+MachineComponent
+SpringComponent
+RopeComponent
+ScissorsComponent
+GearComponent
+SwitchComponent
+BalloonComponent
 ```
 
-## 10. 重构时机
+## 7. 后续数据驱动架构
 
-不要为了“架构漂亮”提前重写 P0。满足以下任一条件再重构：
+目标：
 
-- 组件数量 > 8
-- 关卡数量 > 5
-- `main.gd` > 500 行
-- 新增组件需要修改多个无关模块
-- 无法独立测试组件
+```text
+Level Resource / JSON
+        ↓
+ComponentFactory
+        ↓
+MachineComponent instances
+        ↓
+LevelRuntime
+        ↓
+PhysicsWorld
+        ↓
+GoalSystem
+```
 
-## 11. 性能原则
-
-目标设备：普通 Android 手机。
-
-优先保证：
-
-- 物理步进稳定
-- UI 不频繁创建/销毁
-- 不在 `_process` 中做昂贵遍历
-- 组件数量增加后使用对象生命周期管理
-- 粒子和特效必须有限制
-
-正式版本目标：简单关卡 60 FPS；复杂关卡至少保持可玩帧率。
+关卡数据不得长期硬编码在 `main.gd`。
