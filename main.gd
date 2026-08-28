@@ -149,13 +149,13 @@ func _build_ui() -> void:
         var button := Button.new()
         button.text = item[0]
         button.position = Vector2(x, 48)
-        button.size = Vector2(78, 44)
+        button.size = Vector2(68, 44)
         button.add_theme_font_size_override("font_size", 13)
         _style_button(button)
         button.pressed.connect(_add_component.bind(item[1]))
         top.add_child(button)
         editor_buttons.append(button)
-        x += 82.0
+        x += 70.0
     run_button = Button.new()
     run_button.text = "▶ 运行"
     run_button.position = Vector2(1055, 48)
