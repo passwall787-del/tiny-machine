@@ -234,13 +234,17 @@ func _create_piece(kind: String, pos: Vector2, rot: float = 0.0) -> MachinePiece
     body.set_script(load("res://piece.gd"))
     var piece := body as MachinePiece
     piece.setup(kind, self, pos, rot)
+    var collider := piece as CollisionObject2D
+    if collider == null:
+        push_error("MachinePiece must wrap a CollisionObject2D")
+        return piece
     var solid := kind == "ball" or kind == "balloon" or kind == "board" or kind == "slope" or kind == "gear"
     if solid:
-        piece.collision_layer = 1
-        piece.collision_mask = 1
+        collider.collision_layer = 1
+        collider.collision_mask = 1
     else:
-        piece.collision_layer = 2
-        piece.collision_mask = 0
+        collider.collision_layer = 2
+        collider.collision_mask = 0
     var shape = CollisionShape2D.new()
     if kind == "slope":
         var poly = CollisionPolygon2D.new()
