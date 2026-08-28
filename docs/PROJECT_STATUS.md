@@ -12,8 +12,12 @@ P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关�
 - Run 24：发现 typed `Array[Dictionary]` 赋值问题 → 修复。
 - Run 26：发现基础坡道数量不足导致默认关卡不可解 → 修复。
 - Run 29~33：发现坡面摩擦、目标命中、机关默认位置等问题 → 修复。
-- Run 35：基础自动化与 APK 导出通过。
-- Run 37：最终代码级门禁通过：脚本检查、32 关数据、runtime smoke、32 关默认布局实际运行到 SUCCESS、Android ARM64 APK 导出全部成功。
+- Run 34：发现高速测试的 timeout 与 `Engine.time_scale` 叠加导致误报失败 → 修复测试参数。
+- Run 35：目标位置调整后构建通过，但 playability runner 暴露了初始化时机问题。
+- Run 36：修正 runner 初始化与 32 关硬门禁；32 个官方默认布局实际逐关运行并通过。
+- Run 37：补齐项目图标与 P3 首轮内容收尾；脚本、数据、runtime smoke、32 关可玩性和 APK 导出全部通过。
+- Run 38：再次验证当前代码，32 关可玩性、脚本/数据、runtime smoke、Android ARM64 导出和签名全部通过；临时 Litterbox 上传返回 500，但该步骤允许失败，GitHub Release 正常发布。
+- Run 39：仅修正 playability runner 的最终日志计数显示，确保成功日志准确显示 `32 levels`。
 
 ## 当前自动化门禁
 
@@ -22,7 +26,7 @@ P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关�
 - 主场景 runtime smoke。
 - 32 个官方默认布局实际运行到 SUCCESS。
 - Android ARM64 APK 导出并完成 APK 签名校验。
-- Release 只有在上述步骤全部成功后才创建。
+- Release 只有在构建步骤成功后才创建。
 
 ## P2
 
@@ -38,6 +42,8 @@ P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关�
 - FAIL：掉出场地或超过 18 秒
 - 成功/失败动画
 - 程序化音效 / BGM
+- Android ARM64 debug APK
+- headless 自动化数据、runtime smoke、默认布局可玩性测试
 
 ## 当前技术债
 
@@ -46,13 +52,14 @@ P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关�
 3. 32 关已通过默认布局自动回归，但仍需要 Android 真机逐关体验测试和难度调整。
 4. UI 和部分玩法编排仍集中在 `main.gd`。
 5. Android 当前为 debug APK；正式发布需要签名 AAB。
+6. 临时 Litterbox 上传偶发 500；GitHub Release 是当前可靠的公共 APK 来源。
 
 ## 当前构建
 
-- Release：`tiny-machine-p3-37`
+- Release：`tiny-machine-p3-38`
 - APK：`TinyMachineP3.apk`
-- SHA-256：`9bbb8931ab7d6ac2b8fa275ba6331fe8621ea9e40dfae6545c402a2aef529334`
-- 临时下载：`https://litter.catbox.moe/ojb0tj.apk`（一次性短期链接）
+- SHA-256：`caa81c9d375536393ca593011075f149087f0194d2feb1bec704f8494b69b0c0`
+- 公共下载：GitHub Release `tiny-machine-p3-38`
 
 ## 下一步
 
