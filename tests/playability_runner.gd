@@ -23,17 +23,16 @@ func _run() -> void:
     await process_frame
     await process_frame
 
-    if game.levels.size() != REQUIRED_LEVELS:
-        failures.append("playability runner expected %d levels, loaded %d" % [REQUIRED_LEVELS, game.levels.size()])
-        _cleanup_and_finish()
+    var level_count := game.levels.size()
+    if level_count != REQUIRED_LEVELS:
+        failures.append("playability runner expected %d levels, loaded %d" % [REQUIRED_LEVELS, level_count])
+        await _cleanup()
+        _finish(level_count)
         return
 
-    # Accelerate only the wall-clock test duration. The game timeout is kept
-    # at 8 seconds of simulated game time, so a bad level fails quickly while
-    # still exercising the normal SUCCESS/FAIL state machine.
     Engine.time_scale = TEST_TIME_SCALE
 
-    for index in range(game.levels.size()):
+    for index in range(level_count):
         game._load_level(index)
         game.run_timeout = TEST_TIMEOUT
         game.toggle_run()
@@ -51,19 +50,18 @@ func _run() -> void:
         else:
             await process_frame
 
-    Engine.time_scale = 1.0
-    _cleanup_and_finish()
+    await _cleanup()
+    _finish(level_count)
 
-func _cleanup_and_finish() -> void:
+func _cleanup() -> void:
     Engine.time_scale = 1.0
     if game != null and is_instance_valid(game):
         game.queue_free()
         await process_frame
-    _finish()
 
-func _finish() -> void:
+func _finish(level_count: int) -> void:
     if failures.is_empty():
-        print("Tiny Machine default-level playability test: PASS (%d levels)" % (game.levels.size() if game != null else 0))
+        print("Tiny Machine default-level playability test: PASS (%d levels)" % level_count)
         quit(0)
     else:
         for failure in failures:
