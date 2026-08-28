@@ -10,8 +10,8 @@ static func create_component(kind: String, data: Dictionary, owner: Node, editor
             rb.freeze = true
             rb.mass = 1.0 if kind == "ball" else 0.8
             rb.gravity_scale = 1.0 if kind == "ball" else -0.22
-            rb.linear_damp = 0.08
-            rb.angular_damp = 0.08
+            rb.linear_damp = 0.02
+            rb.angular_damp = 0.02
             rb.continuous_cd = RigidBody2D.CCD_MODE_CAST_SHAPE
         "gear":
             body = AnimatableBody2D.new()
@@ -40,10 +40,19 @@ static func create_component(kind: String, data: Dictionary, owner: Node, editor
         collider.collision_layer = 2
         collider.collision_mask = 0
 
+    if node is PhysicsBody2D:
+        var physics_body: PhysicsBody2D = node
+        var material := PhysicsMaterial.new()
+        material.friction = 0.03 if kind in ["ball", "slope"] else 0.25
+        material.bounce = 0.0
+        physics_body.physics_material_override = material
+
     if kind == "slope":
-        var poly := CollisionPolygon2D.new()
-        poly.polygon = PackedVector2Array([Vector2(-125, 22), Vector2(125, -22), Vector2(125, 22)])
-        piece.add_child(poly)
+        var slope_shape := CollisionShape2D.new()
+        var slope_rect := RectangleShape2D.new()
+        slope_rect.size = Vector2(250, 28)
+        slope_shape.shape = slope_rect
+        piece.add_child(slope_shape)
     else:
         var shape := CollisionShape2D.new()
         match kind:
