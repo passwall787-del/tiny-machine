@@ -24,6 +24,7 @@
 - 修复 playability runner 初始化过早导致的假阳性；现在硬性要求加载 32 个官方关卡后逐关运行。
 - 修复测试环境 timeout 与 `Engine.time_scale` 叠加造成的误报失败。
 - 修复 playability runner 释放场景后错误显示 0 关的问题。
+- 修复 playability runner 日志修复中的 GDScript 参数/类型解析错误。
 - 修复目标数据文件与运行时默认目标坐标不一致的问题。
 
 ### Run 37
@@ -36,6 +37,17 @@
 - Android ARM64 APK 导出、签名验证通过。
 - SHA-256：`caa81c9d375536393ca593011075f149087f0194d2feb1bec704f8494b69b0c0`
 - 临时 Litterbox 上传出现 HTTP 500，但该步骤为可选失败，GitHub Release 正常生成。
+
+### Run 39
+- playability runner 日志修复首次提交触发 GDScript 参数/类型解析错误，未发布 APK。
+- 随后立即修复并由 Run 40 回归。
+
+### Run 40
+- 32/32 官方默认布局实际 headless 物理回归通过。
+- 自动化脚本、数据、runtime smoke 全部通过。
+- Android ARM64 APK 导出和签名验证通过。
+- SHA-256：`b23c41f649bfc89a3e9bc91c64ab360d2a016ff9fd98064b24150814ac4ea0d0`
+- GitHub Release：`tiny-machine-p3-40`。
 
 ## P2
 - 关卡从硬编码布局迁移到 `levels.json` + `LevelData`。
