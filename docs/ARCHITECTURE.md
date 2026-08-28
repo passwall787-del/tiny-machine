@@ -1,150 +1,87 @@
 # 架构说明
 
-## 1. 当前运行时
-
-当前 P1 仍采用轻量原型架构：
+## P2/P3 运行时
 
 ```text
 main.tscn
-   │
-   └── main.gd
-        ├── UI
-        ├── Level Runtime
-        ├── GameState
-        ├── Target / Goal
-        ├── Physics orchestration
-        └── MachinePiece[]
-              └── piece.gd
+  │
+  └── main.gd
+       ├── LevelRuntime
+       │    ├── ComponentFactory
+       │    │     └── MachineComponent
+       │    └── Goal Area2D
+       ├── LevelData
+       │    └── levels.json
+       ├── LevelValidator
+       └── AudioManager
 ```
 
-## 2. GameState
+## 职责
 
-正式状态：
+### main.gd
+- UI 与输入编排
+- GameState
+- 编辑器操作
+- 运行时机关链
+- 成功/失败流程
+
+### LevelData
+负责关卡元数据、组件布局、JSON 序列化和模板生成。
+
+### LevelValidator
+在运行和保存前检查组件类型、坐标、目标和小球数量。
+
+### ComponentFactory
+把 `type + transform` 数据转换成 Godot 物理节点并安装统一组件脚本。
+
+### MachineComponent
+负责拖动输入、运行时状态和组件绘制。当前组件类型：
+`ball / board / slope / spring / rope / scissors / gear / switch / balloon / magnet / bomb`
+
+### LevelRuntime
+负责创建/清理目标、实例化组件、重置模拟和导出当前布局。
+
+### AudioManager
+使用 `AudioStreamGenerator` 产生轻量程序化 BGM、点击、成功和失败提示，不依赖外部音频资源。
+
+## 状态机
 
 ```text
-EDITING
-RUNNING
-PAUSED
-SUCCESS
+EDITING → RUNNING → SUCCESS
+    │         │
+    │         └────→ FAIL
+    │
+    └──────────────→ EDITING (重置)
 ```
 
-目标进入是终端事件：
+目标区进入是终端事件：
 
 ```text
-Target.body_entered
+ball enters goal
       ↓
 SUCCESS
       ↓
-freeze bodies + stop components + lock UI
+stop simulation + zero velocities + lock editor + success animation
 ```
 
-## 3. MachinePiece 包装模型
-
-P1 中 `MachinePiece` 是一个 `Node2D` 脚本类型，实际承载它的节点仍然是：
-
-- RigidBody2D
-- StaticBody2D
-- AnimatableBody2D
-
-这样同一个组件行为脚本可以同时服务动态和静态物理节点。
-
-需要物理属性时通过 `CollisionObject2D` / `RigidBody2D` 进行运行时类型检查。
-
-## 4. 组件
-
-P1 组件使用 `MachinePiece` 统一脚本，通过 `piece_type` 分发行为。
-
-当前类型：
+## 数据流
 
 ```text
-ball
-board
-slope
-spring
-rope
-scissors
-gear
-switch
-balloon
-```
-
-## 5. 物理层
-
-### Solid layer
-
-- Ball
-- Board
-- Slope
-- Gear
-- Balloon
-
-使用 layer 1 / mask 1。
-
-### Sensor/edit layer
-
-- Spring
-- Rope
-- Scissors
-- Switch
-
-使用独立碰撞层，避免无意阻挡小球。
-
-## 6. 运行时职责
-
-`main.gd`：
-
-- 创建关卡。
-- 管理 GameState。
-- 管理目标判定。
-- 管理暂停/恢复/重置。
-- 编排 P1 机关之间的触发关系。
-
-`piece.gd`：
-
-- 拖动。
-- 组件状态。
-- 组件绘制。
-- Balloon 上浮。
-- Gear 旋转。
-- Rope cut。
-- RigidBody2D 冲量辅助。
-
-## 7. P1 的临时取舍
-
-当前没有立即拆成大量脚本，因为需要先验证物理手感和机关规则。
-
-但是新增 P1 组件不能继续把大量独立业务塞进 `main.gd`。进入 P2 前应拆分为：
-
-```text
-GameState
+levels.json
+   ↓
+LevelData
+   ↓
+LevelValidator
+   ↓
 LevelRuntime
-GoalSystem
+   ↓
 ComponentFactory
-MachineComponent
-SpringComponent
-RopeComponent
-ScissorsComponent
-GearComponent
-SwitchComponent
-BalloonComponent
+   ↓
+MachineComponent / Godot physics
 ```
 
-## 8. 后续数据驱动架构
+编辑器修改后反向生成 `LevelData`；保存时写入 `user://`。
 
-目标：
+## P2 后续演进
 
-```text
-Level Resource / JSON
-        ↓
-ComponentFactory
-        ↓
-MachineComponent instances
-        ↓
-LevelRuntime
-        ↓
-PhysicsWorld
-        ↓
-GoalSystem
-```
-
-关卡数据不得长期硬编码在 `main.gd`。
+正式版本可进一步把 `main.gd` 拆为 `EditorController`、`GameStateController`、`MechanicsSystem` 和 `GoalSystem`。当前结构已经先把数据、组件工厂、运行时和验证器分开，避免继续把关卡硬编码在单文件中。

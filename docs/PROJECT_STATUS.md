@@ -1,122 +1,70 @@
-# 当前项目状态 / Handoff
-
-> 后续开发人员开始工作前最应该阅读本文档。
+# 项目当前状态 / Handoff
 
 ## 当前阶段
 
-**P1：机关系统与终端通关状态（进行中）**
+**P3 首轮交付，进入真机体验与内容调优循环。**
 
-P0 的基础物理核心已经进入 P1。当前重点从“单纯让小球运动”转向“机械机关产生连锁反应”。
+P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关卡、教程、难度曲线、成功/失败反馈、程序化音效和轻量 BGM。
 
-## 已实现
-
-### 基础系统
-
-- Godot 4.7.2。
-- Android ARM64 导出。
-- 小球 RigidBody2D。
-- 木板 StaticBody2D。
-- 斜坡 StaticBody2D + CollisionPolygon2D。
-- 目标 Area2D。
-- 游戏区域边界。
-- 鼠标拖动与 Android 触摸拖动。
-- 开始 / 暂停 / 继续 / 重置。
-- 高对比度 UI。
-- 关卡选择。
-
-### P1 机关
-
-- Spring：一次性冲量。
-- Switch：触发后激活机关。
-- Gear：持续旋转 + 一次性切向冲量。
-- Rope：可剪断视觉原型。
-- Scissors：触发剪绳。
-- Balloon：上浮。
-
-### P1 通关规则
-
-目标区域进入后是一次模拟的**终端事件**：
+## 架构
 
 ```text
-RUNNING
-  ↓ ball enters target
-SUCCESS
-  ↓
-freeze dynamic bodies
-stop component simulation
-clear velocities
-lock editing controls
+main.tscn
+  └─ main.gd
+       ├─ LevelRuntime
+       │    └─ ComponentFactory
+       │         └─ MachineComponent
+       ├─ LevelData / levels.json
+       ├─ LevelValidator
+       └─ AudioManager
 ```
 
-不会继续让物理系统在已经通关的状态下运行。
+## P2 功能
 
-## P1 演示关卡
+- 拖动
+- 旋转 15°
+- 多选移动
+- 删除
+- 撤销 / 重做（最多 50 步）
+- 20px 网格吸附
+- 保存 `user://tiny_machine_custom_level.json`
+- 加载本机自制关卡
+- 关卡验证
 
-### Level 01
+## P3 功能
 
-P0 基础斜坡关卡，作为 P1 回归测试。
+- 官方关卡：32
+- 教程：1~5 关
+- 难度：1~8 星
+- Magnet / Bomb 已进入组件工厂和运行时
+- 成功状态：目标进入后立即停止模拟
+- 失败状态：掉出场地或超过 18 秒
+- 成功/失败动画
+- 程序化音效 / BGM，可关闭
 
-### Level 02
+## 官方关卡策略
 
-P1 机关演示，包含：
+`levels.json` 保存关卡元数据；`LevelData.generate_pattern()` 根据 pattern 和 slope_count 生成首轮官方布局。这样后续可以逐步把经过验证的关卡冻结为显式 JSON，而不需要改运行时架构。
 
-```text
-小球 → 斜坡 → 开关 → 齿轮/弹簧 → 木板 → 目标
-```
+## 自动化测试
 
-并放置绳子、剪刀、气球用于组件测试。
+CI 在导出 APK 前执行：
+- JSON 解析
+- 32 关数量检查
+- ID 唯一性
+- 组件类型合法性
+- 目标边界
+- 每关恰好一个小球
+- LevelData 序列化往返
+- Validator 负例
 
-## 最近构建记录
+## 已知技术债 / 下一轮
 
-### P1 build 19
+1. Rope 当前仍是逻辑剪断原型，不是 Joint2D 绳索求解。
+2. Gear 当前是原型级机械传递，后续可改为真正的轮轴/齿轮约束。
+3. 官方关卡首轮以可运行路径为主，必须通过 Android 真机反馈继续调成真正的谜题，而不是只依赖固定模板。
+4. 当前主场景仍集中了一部分 UI 与编排逻辑；后续可以进一步拆分编辑器 UI 与游戏运行时。
 
-- GitHub Actions Run：`33157898382`
-- Commit：`cf18a82d0b68095da0b0ab885088a5ff17e70add`
-- 状态：**success**
-- APK：`TinyMachineP1.apk`
-- 架构：Android ARM64
-- APK 大小：28,267,151 bytes
-- SHA-256：`29f213a71887fc624857048d394585dd7acf0e254ea29fcbef3d98366ba8e942`
-- Release：`tiny-machine-p1-19`
+## 验收规则
 
-> CI 成功只代表项目成功导入并导出 APK；真实 Android 设备上的触摸、物理手感和关卡可解性仍需人工回归。
-
-## 当前技术债
-
-1. `main.gd` 仍承担 UI、关卡、物理编排和组件创建。
-2. 组件仍通过 `piece_type` 字符串区分。
-3. 关卡仍硬编码。
-4. 没有正式 Level 数据格式。
-5. 没有独立 PhysicsWorld。
-6. Rope 还不是实际物理约束。
-7. Gear 是原型级机械传递，不是严格齿轮约束求解。
-8. 没有正式保存系统。
-9. 没有音频系统。
-
-## P1 剩余工作
-
-1. Magnet / Bomb。
-2. 更真实的 Rope + Joint2D。
-3. 动态跷跷板 / 铰链。
-4. 正式 Level 数据结构。
-5. ComponentFactory。
-6. 独立 GameState / LevelRuntime。
-7. P1 关卡可解性验证矩阵。
-8. Android 真机回归并记录结果。
-
-## 暂不开发
-
-在核心物理和关卡可解性稳定前，不优先开发登录、服务器、在线关卡、排行榜、广告和内购。
-
-## 代码入口
-
-- `main.gd`：当前运行时、关卡和机关编排。
-- `piece.gd`：组件交互、物理辅助和绘制。
-- `main.tscn`：主场景。
-- `project.godot`：项目设置。
-- `export_presets.cfg`：Android 导出。
-- `.github/workflows/android-p0.yml`：当前 P1 Android CI 工作流（文件名保留历史名称）。
-
-## 文档维护规则
-
-影响状态机、组件行为、关卡布局、Android 构建或验收状态的修改，必须同步更新 `docs/GAMEPLAY.md`、`docs/COMPONENTS.md`、具体关卡文档、`docs/BUILD_ANDROID.md`、`docs/TEST_PLAN.md` 或 `CHANGELOG.md` 中对应内容。
+每次修改物理、组件、目标或关卡数据后，都必须先通过 headless 自动测试，再导出 Android APK。真实触摸手感、性能、音频和关卡可解性仍需要真机回归。

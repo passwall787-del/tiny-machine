@@ -1,74 +1,59 @@
 # Release Checklist
 
-## P1 功能
+## P3 功能
+- [x] 32 个官方关卡数据
+- [x] 教程 1~5
+- [x] 难度 1~8 星
+- [x] Magnet / Bomb
+- [x] 成功/失败状态
+- [x] 成功/失败动画
+- [x] 程序化音效 / BGM
+- [x] P2 编辑器能力
 
-- [ ] Level 001 稳定可解。
-- [ ] Level 002 稳定可解。
-- [ ] Spring 正常。
-- [ ] Switch 正常。
-- [ ] Gear 正常。
-- [ ] Rope / Scissors 正常。
-- [ ] Balloon 正常。
-- [ ] Target 进入立即终止模拟。
-- [ ] SUCCESS 后不能继续编辑或运行。
-- [ ] Reset 无残留状态。
+## 编辑器
+- [x] 拖动
+- [x] 旋转
+- [x] 多选
+- [x] 删除
+- [x] 撤销 / 重做
+- [x] 网格吸附
+- [x] 保存 / 加载
+- [x] 关卡验证
 
-## UI
-
-- [ ] 主按钮清晰可见。
-- [ ] 组件按钮清晰可见。
-- [ ] 触摸区域足够大。
-- [ ] 文本无截断。
-- [ ] 不同屏幕比例没有关键 UI 遮挡。
-- [ ] SUCCESS 状态清晰。
-
-## 物理
-
-- [ ] 默认解连续成功。
-- [ ] 无明显穿透。
-- [ ] 无明显卡死。
-- [ ] Pause / Resume 正常。
-- [ ] Reset 正常。
-- [ ] 成功后物理停止。
-- [ ] 不依赖设备帧率。
+## 核心物理
+- [x] 目标进入立即终止
+- [x] SUCCESS 后冻结动态物体
+- [x] Reset 无残留运行状态
+- [x] FAIL：掉出场地 / 超时
+- [ ] 真机确认无明显穿透
+- [ ] 真机确认长时间运行无异常发热/卡顿
 
 ## Android
-
-- [ ] ARM64 安装测试。
-- [ ] 启动测试。
-- [ ] 触摸编辑测试。
-- [ ] 返回/切后台测试。
-- [ ] 屏幕比例测试。
-- [ ] 重新安装测试。
+- [x] ARM64 CI
+- [x] headless 自动测试
+- [ ] 真机安装
+- [ ] 触摸编辑
+- [ ] 屏幕比例
+- [ ] 切后台/恢复
+- [ ] 音频设备兼容
 
 ## Build
-
-- [ ] GitHub Actions 成功。
-- [ ] APK 文件存在。
-- [ ] APK 大小合理。
-- [ ] SHA-256 已记录。
-- [ ] version name 正确。
-- [ ] version code 正确。
-
-## Release signing
-
-正式版：
-
-- [ ] 使用正式 keystore。
-- [ ] keystore 不在仓库。
-- [ ] 密码来自 GitHub Secrets/安全存储。
-- [ ] Debug signing 已关闭。
-- [ ] AAB 构建成功。
+- [x] GitHub Actions 成功
+- [x] APK 非空
+- [x] SHA-256 记录
+- [x] Release asset
+- [ ] 正式签名 AAB
 
 ## 文档
-
-- [ ] README 更新。
-- [ ] CHANGELOG 更新。
-- [ ] ROADMAP 更新。
-- [ ] PROJECT_STATUS 更新。
-- [ ] GAMEPLAY 更新。
-- [ ] PHYSICS 更新。
-- [ ] COMPONENTS 更新。
-- [ ] LEVEL_DESIGN 更新。
-- [ ] Level 文档更新。
-- [ ] TEST_PLAN 更新。
+- [x] ROADMAP
+- [x] PROJECT_STATUS
+- [x] ARCHITECTURE
+- [x] GAMEPLAY
+- [x] PHYSICS
+- [x] COMPONENTS
+- [x] LEVEL_DESIGN
+- [x] BUILD_ANDROID
+- [x] TEST_PLAN
+- [x] CHANGELOG
+- [x] ADR
+- [x] 文档索引

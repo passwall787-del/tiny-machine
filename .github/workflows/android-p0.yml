@@ -1,13 +1,13 @@
-name: Tiny Machine P1 Android
+name: Tiny Machine P3 Android
 
 on:
   push:
     branches: [main]
     paths:
-      - "project.godot"
-      - "main.gd"
-      - "main.tscn"
-      - "piece.gd"
+      - "**/*.gd"
+      - "*.tscn"
+      - "*.godot"
+      - "levels.json"
       - "export_presets.cfg"
       - ".github/workflows/android-p0.yml"
   workflow_dispatch:
@@ -17,13 +17,13 @@ permissions:
 
 jobs:
   build:
-    name: Build Tiny Machine P1 Android ARM64 APK
+    name: Test and build Tiny Machine P3 Android ARM64 APK
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build with Godot CI Docker image
+      - name: Build and test with Godot CI Docker image
         run: |
           docker pull barichello/godot-ci:4.7.2
           docker run --rm \
@@ -34,11 +34,12 @@ jobs:
               set -e
               mkdir -p /root/.config/godot
               godot --headless --editor --import --quit
+              godot --headless --path /workspace --script res://tests/test_runner.gd
               mkdir -p build/android
-              godot --headless --verbose --export-debug "Android" build/android/TinyMachineP1.apk
-              test -s build/android/TinyMachineP1.apk
-              sha256sum build/android/TinyMachineP1.apk
-              ls -lh build/android/TinyMachineP1.apk
+              godot --headless --verbose --export-debug "Android" build/android/TinyMachineP3.apk
+              test -s build/android/TinyMachineP3.apk
+              sha256sum build/android/TinyMachineP3.apk
+              ls -lh build/android/TinyMachineP3.apk
             '
 
       - name: Upload to temporary Litterbox
@@ -48,22 +49,22 @@ jobs:
           URL=$(curl -f -sS --retry 3 --retry-delay 2 \
             -F "reqtype=fileupload" \
             -F "time=1h" \
-            -F "fileToUpload=@build/android/TinyMachineP1.apk;type=application/vnd.android.package-archive" \
+            -F "fileToUpload=@build/android/TinyMachineP3.apk;type=application/vnd.android.package-archive" \
             https://litterbox.catbox.moe/resources/internals/api.php)
           test -n "$URL"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Temporary download URL: $URL"
 
-      - name: Publish public GitHub release fallback
+      - name: Publish public GitHub release
         if: ${{ !cancelled() }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: tiny-machine-p1-${{ github.run_number }}
-          name: Tiny Machine P1 ${{ github.run_number }}
+          tag_name: tiny-machine-p3-${{ github.run_number }}
+          name: Tiny Machine P3 ${{ github.run_number }}
           prerelease: true
           generate_release_notes: false
           body: |
-            Tiny Machine P1 Android ARM64 debug build.
-            Target entry is terminal: the simulation stops immediately on success.
-            A temporary Litterbox URL may also appear in the workflow log.
-          files: build/android/TinyMachineP1.apk
+            Tiny Machine P3 Android ARM64 debug build.
+            Includes P2 editor/data pipeline and 32 official levels.
+            Automated catalog/serialization/validator tests run before export.
+          files: build/android/TinyMachineP3.apk

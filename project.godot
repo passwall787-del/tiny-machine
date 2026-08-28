@@ -1,9 +1,9 @@
-; Tiny Machine P0
-; Godot 4.x Android prototype
+; Tiny Machine P3
+; Godot 4.x Android puzzle prototype
 config_version=5
 
 [application]
-config/name="Tiny Machine P0"
+config/name="Tiny Machine P3"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 boot_splash/bg_color=Color(0.055, 0.063, 0.078, 1)
@@ -25,3 +25,5 @@ textures/vram_compression/import_etc2_astc=true
 [input]
 toggle_run={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":32)]}
 reset={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":82)]}
+rotate={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":69)]}
+delete={"deadzone":0.5,"events":[Object(InputEventKey,"physical_keycode":4194308)]}

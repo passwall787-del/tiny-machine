@@ -1,137 +1,50 @@
 # 测试计划
 
-## 1. P0 回归
+## 自动化 CI
+每次代码/关卡数据变更：
+1. Godot headless import。
+2. 执行 `tests/test_runner.gd`。
+3. 通过后导出 Android ARM64 APK。
+4. 校验 APK 非空并记录 SHA-256。
+5. 发布 GitHub prerelease。
 
-### Level 001
+## 自动化覆盖
+- levels.json 可解析。
+- 官方关卡 ≥30；当前 32。
+- ID 唯一。
+- 组件类型合法。
+- 目标和组件坐标在边界内。
+- 每关恰好一个 Ball。
+- LevelData JSON 往返。
+- Validator 能拒绝非法关卡。
 
-- [ ] 启动。
-- [ ] 编辑。
-- [ ] 开始。
-- [ ] 小球沿斜坡运行。
-- [ ] 进入目标。
-- [ ] 成功立即终止。
-- [ ] Reset。
+## Android 真机回归
+### P0/P1 核心
+- 触摸拖动。
+- 目标进入立即停止。
+- 重置后速度清零。
+- 暂停/继续。
 
-## 2. P1 机关
+### P2 编辑器
+- 删除。
+- 旋转。
+- 多选拖动。
+- 撤销/重做。
+- 网格吸附开关。
+- 保存/加载。
+- 非法关卡不能运行。
 
-### Spring
+### P3 内容
+- 32 关可以切换。
+- 教程 1~5 显示。
+- 成功动画。
+- 掉出场地失败。
+- 18 秒超时失败。
+- 音乐可关闭。
+- 成功/失败提示音。
 
-- [ ] 可添加。
-- [ ] 可拖动。
-- [ ] 运行时触发。
-- [ ] 每次运行只触发一次。
-- [ ] Reset 后可以再次触发。
+## 回归原则
+任何涉及 GameState、目标碰撞、RigidBody2D、组件触发、LevelData 或关卡布局的提交，都必须重新跑 CI；真机发现问题后先修代码/数据，再重新 CI，再生成 APK。
 
-### Switch
-
-- [ ] 可添加。
-- [ ] 小球靠近后 ON。
-- [ ] 激活 Gear/Spring。
-- [ ] Reset 后 OFF。
-
-### Gear
-
-- [ ] 可添加。
-- [ ] 激活后旋转。
-- [ ] 小球靠近后产生一次切向冲量。
-- [ ] 成功/Reset 后停止并恢复。
-
-### Rope / Scissors
-
-- [ ] Rope 可添加和移动。
-- [ ] 初始状态完整。
-- [ ] Scissors 靠近后剪断。
-- [ ] 剪断状态视觉明确。
-- [ ] Reset 恢复完整。
-
-### Balloon
-
-- [ ] 可添加。
-- [ ] Start 后上浮。
-- [ ] Pause 后停止。
-- [ ] Resume 后继续。
-- [ ] Reset 回到初始位置。
-
-## 3. GameState
-
-```text
-EDITING → RUNNING
-RUNNING → PAUSED
-PAUSED → RUNNING
-RUNNING → SUCCESS
-SUCCESS → RESET → EDITING
-```
-
-每条路径都需要验证。
-
-## 4. Goal Terminal Test
-
-这是 P1 的重点回归：
-
-- [ ] Ball 进入 Target 后状态立即为 SUCCESS。
-- [ ] Ball 速度被清零。
-- [ ] Balloon 停止。
-- [ ] Gear 停止。
-- [ ] Spring 不再触发。
-- [ ] Scissors 不再剪切。
-- [ ] 添加组件按钮禁用。
-- [ ] 关卡选择禁用。
-- [ ] Reset 后恢复 EDITING。
-
-## 5. Android
-
-至少验证：
-
-- [ ] Android ARM64 安装。
-- [ ] 触摸拖动 Ball。
-- [ ] 触摸拖动 Board。
-- [ ] 触摸拖动 Slope。
-- [ ] 触摸拖动 P1 组件。
-- [ ] Start / Pause / Resume / Reset。
-- [ ] Level selector。
-- [ ] 小屏幕文字可读。
-- [ ] 按钮对比度足够。
-- [ ] 成功状态不会继续运动。
-
-## 6. 性能
-
-目标设备上观察：
-
-- 60 FPS 优先。
-- 无持续发热异常。
-- 无明显输入延迟。
-- 无物理抖动失控。
-
-## 7. 构建
-
-CI 必须：
-
-- 成功导入 Godot 项目。
-- 成功导出 ARM64 APK。
-- APK 非空。
-- SHA-256 可记录。
-- Release asset 可下载。
-
-### 当前构建验收记录
-
-| Build | Run | CI | APK | 设备验收 |
-|---|---:|---|---|---|
-| P1-19 | 33157898382 | PASS | TinyMachineP1.apk / 28,267,151 bytes | 待人工测试 |
-
-SHA-256：
-
-```text
-29f213a71887fc624857048d394585dd7acf0e254ea29fcbef3d98366ba8e942
-```
-
-## 8. 回归原则
-
-凡修改以下内容，必须重新执行 Level 001 + Goal Terminal Test：
-
-- `main.gd` 的 GameState。
-- 目标 Area2D 或碰撞层。
-- RigidBody2D 的 freeze / velocity 逻辑。
-- `piece.gd` 的 simulation_enabled。
-- 关卡目标对象。
-
-P1 新增机关必须至少增加一个最小可解性测试场景，不能只依赖自由测试。
+## 当前状态
+CI 自动测试用于防止明显回归；物理手感、触摸坐标、帧率和真实关卡体验仍以 Android 真机为最终依据。
