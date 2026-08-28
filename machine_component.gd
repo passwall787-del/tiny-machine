@@ -129,9 +129,10 @@ func _draw() -> void:
             draw_rect(rect, Color("#c88a4a"), true)
             draw_rect(rect, Color("#5c3b22"), false, outline)
         "slope":
-            var poly := PackedVector2Array([Vector2(-125, 22), Vector2(125, -22), Vector2(125, 22)])
-            draw_colored_polygon(poly, Color("#d39a58"))
-            draw_polyline(PackedVector2Array([poly[0], poly[1], poly[2], poly[0]]), Color("#5c3b22"), outline, true)
+            var slope_rect := Rect2(-125, -14, 250, 28)
+            draw_rect(slope_rect, Color("#d39a58"), true)
+            draw_rect(slope_rect, Color("#5c3b22"), false, outline)
+            draw_line(Vector2(-108, 0), Vector2(108, 0), Color("#f0c17d"), 3, true)
         "spring":
             var spring_color := Color("#45a4ff") if active else Color("#536a85")
             draw_rect(Rect2(-55, -13, 110, 26), spring_color, true)
