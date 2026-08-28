@@ -89,6 +89,10 @@ func cut_rope() -> void:
     triggered = true
     queue_redraw()
 
+func apply_central_impulse(impulse: Vector2) -> void:
+    if self is RigidBody2D:
+        (self as RigidBody2D).apply_central_impulse(impulse)
+
 func _draw() -> void:
     var selected = main != null and main.selected_piece == self and main.is_editing()
     var outline_width = 5.0 if selected else 3.0
