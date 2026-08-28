@@ -33,16 +33,26 @@ SUCCESS
 ```text
 Target.body_entered
       ↓
-_validate_goal()
-      ↓
 SUCCESS
       ↓
 freeze bodies + stop components + lock UI
 ```
 
-## 3. 组件
+## 3. MachinePiece 包装模型
 
-P1 组件仍使用 `MachinePiece` 统一脚本，通过 `piece_type` 分发行为。
+P1 中 `MachinePiece` 是一个 `Node2D` 脚本类型，实际承载它的节点仍然是：
+
+- RigidBody2D
+- StaticBody2D
+- AnimatableBody2D
+
+这样同一个组件行为脚本可以同时服务动态和静态物理节点。
+
+需要物理属性时通过 `CollisionObject2D` / `RigidBody2D` 进行运行时类型检查。
+
+## 4. 组件
+
+P1 组件使用 `MachinePiece` 统一脚本，通过 `piece_type` 分发行为。
 
 当前类型：
 
@@ -58,7 +68,7 @@ switch
 balloon
 ```
 
-## 4. 物理层
+## 5. 物理层
 
 ### Solid layer
 
@@ -77,9 +87,9 @@ balloon
 - Scissors
 - Switch
 
-使用独立编辑/检测层，避免无意阻挡小球。
+使用独立碰撞层，避免无意阻挡小球。
 
-## 5. 运行时职责
+## 6. 运行时职责
 
 `main.gd`：
 
@@ -99,7 +109,7 @@ balloon
 - Rope cut。
 - RigidBody2D 冲量辅助。
 
-## 6. P1 的临时取舍
+## 7. P1 的临时取舍
 
 当前没有立即拆成大量脚本，因为需要先验证物理手感和机关规则。
 
@@ -119,7 +129,7 @@ SwitchComponent
 BalloonComponent
 ```
 
-## 7. 后续数据驱动架构
+## 8. 后续数据驱动架构
 
 目标：
 
