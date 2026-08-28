@@ -5,13 +5,15 @@
 1. Godot headless import。
 2. `tests/test_runner.gd`：脚本加载、32 关数据、ID、组件、目标边界、序列化、Validator 负例。
 3. `tests/smoke_runner.gd`：主场景实例化、LevelRuntime、Ball/Goal、EDITING→RUNNING→SUCCESS。
-4. `tests/playability_runner.gd`：加速后的 headless 物理逐关运行 32 个官方默认布局，必须全部达到 SUCCESS。
+4. `tests/playability_runner.gd`：headless 物理逐关运行 32 个官方默认布局，必须全部达到 SUCCESS；测试环境可加速 wall-clock，但保持独立的游戏时间 timeout。
 5. 通过后导出 Android ARM64 APK。
 6. 校验 APK 非空、SHA-256 和 Android debug 签名。
-7. 仅在完整 job 成功后发布 GitHub prerelease。
+7. 仅在构建 job 成功后发布 GitHub prerelease。
 
-## P3 当前结果
-Run 37：32/32 官方默认布局达到 SUCCESS；脚本/数据/smoke 门禁通过；APK 导出和签名验证通过。
+## P3 自动化结果
+- Run 37：脚本/数据/smoke 门禁通过；32/32 官方默认布局达到 SUCCESS；APK 导出和签名验证通过。
+- Run 38：再次完整通过 32/32；APK 导出和签名验证通过。临时 Litterbox 上传遇到 HTTP 500，但该步骤为可选失败，不影响 GitHub Release。
+- Run 39：playability runner 仅修正成功日志中的 level count 显示，目标是准确输出 `PASS (32 levels)`。
 
 ## Android 真机回归
 ### 核心
