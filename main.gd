@@ -27,6 +27,9 @@ func _ready() -> void:
 func is_simulation_running() -> bool:
     return game_state == GameState.RUNNING
 
+func is_editing() -> bool:
+    return game_state == GameState.EDITING
+
 func _make_style(bg: Color, border: Color, radius: int = 10, border_width: int = 1) -> StyleBoxFlat:
     var s := StyleBoxFlat.new()
     s.bg_color = bg
@@ -67,26 +70,22 @@ func _build_ui() -> void:
     var layer = CanvasLayer.new()
     layer.name = "UI"
     add_child(layer)
-
     var top = Panel.new()
     top.size = Vector2(1280, 118)
     top.add_theme_stylebox_override("panel", _make_style(Color("#0b1018"), Color("#263348"), 0, 0))
     layer.add_child(top)
-
     var title = Label.new()
     title.text = "TINY MACHINE  ·  P1"
     title.position = Vector2(24, 7)
     title.add_theme_font_size_override("font_size", 24)
     title.add_theme_color_override("font_color", Color("#f2f6fb"))
     top.add_child(title)
-
     hint_label = Label.new()
     hint_label.text = "编辑：拖动机关  ·  运行：物理接管  ·  目标区进入后立即结束本次模拟并判定通关"
     hint_label.position = Vector2(24, 39)
     hint_label.add_theme_font_size_override("font_size", 14)
     hint_label.add_theme_color_override("font_color", Color("#a9b8ca"))
     top.add_child(hint_label)
-
     level_option = OptionButton.new()
     level_option.position = Vector2(20, 68)
     level_option.size = Vector2(150, 42)
@@ -97,7 +96,6 @@ func _build_ui() -> void:
     _style_option(level_option)
     level_option.item_selected.connect(_on_level_selected)
     top.add_child(level_option)
-
     var palette = [["小球", "ball"], ["木板", "board"], ["斜坡", "slope"], ["弹簧", "spring"], ["绳子", "rope"], ["剪刀", "scissors"], ["齿轮", "gear"], ["开关", "switch"], ["气球", "balloon"]]
     var x := 180.0
     for data in palette:
@@ -111,7 +109,6 @@ func _build_ui() -> void:
         top.add_child(b)
         palette_buttons.append(b)
         x += 90.0
-
     run_button = Button.new()
     run_button.text = "▶ 开始"
     run_button.position = Vector2(1005, 68)
@@ -120,7 +117,6 @@ func _build_ui() -> void:
     _style_button(run_button, true)
     run_button.pressed.connect(toggle_run)
     top.add_child(run_button)
-
     var reset_button = Button.new()
     reset_button.text = "↻ 重置"
     reset_button.position = Vector2(1135, 68)
@@ -129,13 +125,11 @@ func _build_ui() -> void:
     _style_button(reset_button, false)
     reset_button.pressed.connect(reset_level)
     top.add_child(reset_button)
-
     var status_panel = Panel.new()
     status_panel.position = Vector2(30, 615)
     status_panel.size = Vector2(520, 58)
     status_panel.add_theme_stylebox_override("panel", _make_style(Color("#0b1018e8"), Color("#304158"), 12, 1))
     layer.add_child(status_panel)
-
     status_label = Label.new()
     status_label.text = "准备就绪"
     status_label.position = Vector2(16, 9)
@@ -152,7 +146,6 @@ func _create_boundary() -> void:
     floor_shape.shape = floor_rect
     floor.add_child(floor_shape)
     add_child(floor)
-
     var left = StaticBody2D.new()
     left.position = Vector2(8, 407)
     var left_shape = CollisionShape2D.new()
@@ -161,7 +154,6 @@ func _create_boundary() -> void:
     left_shape.shape = left_rect
     left.add_child(left_shape)
     add_child(left)
-
     var right = StaticBody2D.new()
     right.position = Vector2(1272, 407)
     var right_shape = CollisionShape2D.new()
@@ -173,11 +165,9 @@ func _create_boundary() -> void:
 
 func _clear_level() -> void:
     for p in pieces:
-        if is_instance_valid(p):
-            p.queue_free()
+        if is_instance_valid(p): p.queue_free()
     pieces.clear()
-    if is_instance_valid(target):
-        target.queue_free()
+    if is_instance_valid(target): target.queue_free()
     target = null
     ball = null
     selected_piece = null
@@ -187,13 +177,10 @@ func _load_level(index: int) -> void:
     level_index = index
     _clear_level()
     _create_target()
-    if level_index == 0:
-        _build_level_01()
-    else:
-        _build_level_02()
+    if level_index == 0: _build_level_01()
+    else: _build_level_02()
     run_button.text = "▶ 开始"
-    for b in palette_buttons:
-        b.disabled = false
+    for b in palette_buttons: b.disabled = false
     queue_redraw()
 
 func _create_target() -> void:
@@ -242,15 +229,11 @@ func _create_piece(kind: String, pos: Vector2, rot: float = 0.0) -> MachinePiece
         body.set("linear_damp", 0.08)
         body.set("angular_damp", 0.08)
         body.set("continuous_cd", RigidBody2D.CCD_MODE_CAST_SHAPE)
-    elif kind == "gear":
-        body = AnimatableBody2D.new()
-    else:
-        body = StaticBody2D.new()
-
+    elif kind == "gear": body = AnimatableBody2D.new()
+    else: body = StaticBody2D.new()
     body.set_script(load("res://piece.gd"))
     var piece := body as MachinePiece
     piece.setup(kind, self, pos, rot)
-
     var solid := kind == "ball" or kind == "balloon" or kind == "board" or kind == "slope" or kind == "gear"
     if solid:
         piece.collision_layer = 1
@@ -258,7 +241,6 @@ func _create_piece(kind: String, pos: Vector2, rot: float = 0.0) -> MachinePiece
     else:
         piece.collision_layer = 2
         piece.collision_mask = 0
-
     var shape = CollisionShape2D.new()
     if kind == "slope":
         var poly = CollisionPolygon2D.new()
@@ -299,14 +281,12 @@ func _create_piece(kind: String, pos: Vector2, rot: float = 0.0) -> MachinePiece
         switch_rect.size = Vector2(110, 28)
         shape.shape = switch_rect
         piece.add_child(shape)
-
     add_child(piece)
     pieces.append(piece)
     return piece
 
 func _add_piece(kind: String) -> void:
-    if game_state != GameState.EDITING:
-        return
+    if game_state != GameState.EDITING: return
     var pos = Vector2(600, 330)
     if kind == "ball": pos = Vector2(260, 170)
     elif kind == "board": pos = Vector2(560, 300)
@@ -324,8 +304,7 @@ func _add_piece(kind: String) -> void:
 
 func select_piece(piece: MachinePiece) -> void:
     selected_piece = piece
-    for p in pieces:
-        p.queue_redraw()
+    for p in pieces: p.queue_redraw()
 
 func clamp_piece(piece: MachinePiece) -> void:
     var p = piece.global_position
@@ -391,8 +370,7 @@ func _finish_success() -> void:
     queue_redraw()
 
 func _on_target_body_entered(body: Node2D) -> void:
-    if body == ball and game_state == GameState.RUNNING:
-        _finish_success()
+    if body == ball and game_state == GameState.RUNNING: _finish_success()
 
 func _physics_process(_delta: float) -> void:
     if game_state != GameState.RUNNING or ball == null or not is_instance_valid(ball): return
