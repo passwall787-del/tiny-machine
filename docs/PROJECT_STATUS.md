@@ -50,7 +50,7 @@ clear velocities
 lock editing controls
 ```
 
-**不会继续让物理系统在已通关状态下运行。**
+不会继续让物理系统在已通关状态下运行。
 
 ## P1 演示关卡
 
@@ -119,4 +119,4 @@ P1 完成后优先：
 - `main.tscn`：主场景。
 - `project.godot`：项目设置。
 - `export_presets.cfg`：Android 导出。
-- `.github/workflows/android-p0.yml`：当前 Android CI 文件，后续应重命名为 P1 workflow。
+- `.github/workflows/android-p0.yml`：当前 P1 Android CI 工作流（文件名保留历史名称）。
