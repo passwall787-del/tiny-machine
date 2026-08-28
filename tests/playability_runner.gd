@@ -35,6 +35,10 @@ func _run() -> void:
     for index in range(level_count):
         game._load_level(index)
         game.run_timeout = TEST_TIMEOUT
+        game._prepare_test_solution()
+        if game.runtime.components.is_empty():
+            failures.append("level %02d test solution did not place any components" % [index + 1])
+            continue
         game.toggle_run()
         var frames := 0
         while game.state == 1 and frames < MAX_FRAMES_PER_LEVEL:
@@ -46,7 +50,7 @@ func _run() -> void:
             var pos := Vector2.ZERO
             if game.runtime != null and game.runtime.ball != null:
                 pos = game.runtime.ball.global_position
-            failures.append("level %02d default layout did not reach SUCCESS (state=%s, frames=%d, elapsed=%.2f, ball=%s)" % [index + 1, str(game.state), frames, game.elapsed, str(pos)])
+            failures.append("level %02d test solution did not reach SUCCESS (state=%s, frames=%d, elapsed=%.2f, ball=%s)" % [index + 1, str(game.state), frames, game.elapsed, str(pos)])
         else:
             await process_frame
 
@@ -61,10 +65,10 @@ func _cleanup() -> void:
 
 func _finish(level_count: int) -> void:
     if failures.is_empty():
-        print("Tiny Machine default-level playability test: PASS (%d levels)" % level_count)
+        print("Tiny Machine constructed-solution playability test: PASS (%d levels)" % level_count)
         quit(0)
     else:
         for failure in failures:
             push_error(failure)
-        print("Tiny Machine default-level playability test: FAIL (%d)" % failures.size())
+        print("Tiny Machine constructed-solution playability test: FAIL (%d)" % failures.size())
         quit(1)
