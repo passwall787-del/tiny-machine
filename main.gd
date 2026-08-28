@@ -4,7 +4,7 @@ var running := false
 var won := false
 var selected_piece: MachinePiece = null
 var pieces: Array[MachinePiece] = []
-var ball: RigidBody2D
+var ball: MachinePiece
 var target: Area2D
 var status_label: Label
 var hint_label: Label
@@ -98,24 +98,25 @@ func _build_level() -> void:
 
     _create_piece("slope", Vector2(360, 420), -0.12)
     _create_piece("board", Vector2(680, 510), 0.0)
-    ball = _create_piece("ball", Vector2(180, 180), 0.0) as RigidBody2D
+    ball = _create_piece("ball", Vector2(180, 180), 0.0)
     _create_piece("board", Vector2(850, 620), 0.0)
     status_label.text = "准备就绪 · 把小球引导到右下角绿色目标"
 
-func _create_piece(kind: String, pos: Vector2, rot: float = 0.0):
-    var body
+func _create_piece(kind: String, pos: Vector2, rot: float = 0.0) -> MachinePiece:
+    var body: PhysicsBody2D
     if kind == "ball":
         body = RigidBody2D.new()
-        body.freeze = true
-        body.mass = 1.0
-        body.gravity_scale = 1.0
-        body.linear_damp = 0.05
-        body.angular_damp = 0.05
+        body.set("freeze", true)
+        body.set("mass", 1.0)
+        body.set("gravity_scale", 1.0)
+        body.set("linear_damp", 0.05)
+        body.set("angular_damp", 0.05)
     else:
         body = StaticBody2D.new()
 
     body.set_script(load("res://piece.gd"))
-    body.setup(kind, self, pos, rot)
+    var piece := body as MachinePiece
+    piece.setup(kind, self, pos, rot)
 
     var shape = CollisionShape2D.new()
     if kind == "ball":
@@ -127,11 +128,11 @@ func _create_piece(kind: String, pos: Vector2, rot: float = 0.0):
         rect.size = Vector2(250, 30)
         shape.shape = rect
         if kind == "slope":
-            body.rotation = rot - 0.18
-    body.add_child(shape)
-    add_child(body)
-    pieces.append(body)
-    return body
+            piece.rotation = rot - 0.18
+    piece.add_child(shape)
+    add_child(piece)
+    pieces.append(piece)
+    return piece
 
 func _add_piece(kind: String) -> void:
     if running:
@@ -166,13 +167,13 @@ func toggle_run() -> void:
         run_button.text = "⏸ 暂停"
         status_label.text = "运行中 · 观察连锁反应…"
         if ball:
-            ball.freeze = false
-            ball.sleeping = false
+            ball.set("freeze", false)
+            ball.set("sleeping", false)
     else:
         run_button.text = "▶ 继续"
         status_label.text = "已暂停 · 可以继续或重置"
         if ball:
-            ball.freeze = true
+            ball.set("freeze", true)
     for b in palette_buttons:
         b.disabled = running
     queue_redraw()
@@ -183,10 +184,8 @@ func reset_level() -> void:
     run_button.text = "▶ 开始"
     for p in pieces:
         p.reset_piece()
-        if p is RigidBody2D:
-            p.freeze = true
     if ball:
-        ball.freeze = true
+        ball.set("freeze", true)
     status_label.text = "已重置 · 拖动机关，然后点击开始"
     for b in palette_buttons:
         b.disabled = false
@@ -196,7 +195,7 @@ func _on_target_body_entered(body: Node2D) -> void:
     if body == ball and running and not won:
         won = true
         running = false
-        ball.freeze = true
+        ball.set("freeze", true)
         run_button.text = "✓ 完成"
         status_label.text = "🎉 成功！小球进入目标区。点击重置再试一次。"
         queue_redraw()
