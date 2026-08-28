@@ -14,7 +14,7 @@ func _run() -> void:
     var scene = load("res://main.tscn")
     if scene == null or not scene is PackedScene or not scene.can_instantiate():
         failures.append("main scene unavailable")
-        _finish()
+        _finish(0)
         return
 
     game = scene.instantiate()
@@ -23,7 +23,7 @@ func _run() -> void:
     await process_frame
     await process_frame
 
-    var level_count := game.levels.size()
+    var level_count: int = int(game.levels.size())
     if level_count != REQUIRED_LEVELS:
         failures.append("playability runner expected %d levels, loaded %d" % [REQUIRED_LEVELS, level_count])
         await _cleanup()
