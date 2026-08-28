@@ -21,6 +21,8 @@
 - 调整坡面碰撞与低摩擦材质，使默认路径稳定。
 - 调整机关展示位置，避免默认路径被 Magnet/Bomb 意外干扰。
 - 修复 CI 测试失败仍可能发布 Release 的问题。
+- 修复 playability runner 初始化过早导致的假阳性；现在硬性要求加载 32 个官方关卡后逐关运行。
+- 修复测试环境 timeout 与 `Engine.time_scale` 叠加造成的误报失败。
 - 修复 playability runner 释放场景后错误显示 0 关的问题。
 - 修复目标数据文件与运行时默认目标坐标不一致的问题。
 
@@ -29,6 +31,12 @@
 - Android ARM64 APK 导出、签名验证通过。
 - SHA-256：`9bbb8931ab7d6ac2b8fa275ba6331fe8621ea9e40dfae6545c402a2aef529334`
 
+### Run 38
+- 再次通过 32/32 官方默认布局实际 headless 物理回归。
+- Android ARM64 APK 导出、签名验证通过。
+- SHA-256：`caa81c9d375536393ca593011075f149087f0194d2feb1bec704f8494b69b0c0`
+- 临时 Litterbox 上传出现 HTTP 500，但该步骤为可选失败，GitHub Release 正常生成。
+
 ## P2
 - 关卡从硬编码布局迁移到 `levels.json` + `LevelData`。
 - 建立编辑操作历史栈。
@@ -36,3 +44,4 @@
 ## P1
 - 目标区进入成为终端事件。
 - Spring / Switch / Gear / Rope / Scissors / Balloon 原型。
+- Magnet / Bomb 原型。
