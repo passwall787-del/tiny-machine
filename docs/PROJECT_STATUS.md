@@ -19,6 +19,7 @@ P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关�
 - Run 38：再次验证当前代码，32 关可玩性、脚本/数据、runtime smoke、Android ARM64 导出和签名全部通过；临时 Litterbox 上传返回 500，但 GitHub Release 正常发布。
 - Run 39：发现 playability runner 日志修复引入 GDScript 参数/类型解析错误 → 修复。
 - Run 40：修复后的 runner 通过；明确日志输出 `PASS (32 levels)`，并再次完成全部自动化门禁、APK 导出和签名验证。
+- Run 41：移除不稳定的临时 Litterbox 分发步骤；32 关可玩性、脚本/数据、runtime smoke、Android ARM64 导出和签名再次全部通过，GitHub Release 成为唯一正式公共 APK 来源。
 
 ## 当前自动化门禁
 
@@ -53,14 +54,13 @@ P2 已完成首版关卡编辑器与数据管线；P3 已加入 32 个官方关�
 3. 32 关已通过默认布局自动回归，但仍需要 Android 真机逐关体验测试和难度调整。
 4. UI 和部分玩法编排仍集中在 `main.gd`。
 5. Android 当前为 debug APK；正式发布需要签名 AAB。
-6. 临时 Litterbox 上传偶发 500；GitHub Release 是当前可靠的公共 APK 来源。
 
 ## 当前构建
 
-- Release：`tiny-machine-p3-40`
+- Release：`tiny-machine-p3-41`
 - APK：`TinyMachineP3.apk`
-- SHA-256：`b23c41f649bfc89a3e9bc91c64ab360d2a016ff9fd98064b24150814ac4ea0d0`
-- 公共下载：GitHub Release `tiny-machine-p3-40`
+- SHA-256：`14604768874c1bd87ea87db8784b64024bbd7a48394fbb351eada1963e0f38ef`
+- 公共下载：GitHub Release `tiny-machine-p3-41`
 
 ## 下一步
 
